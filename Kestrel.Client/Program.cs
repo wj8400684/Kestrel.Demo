@@ -32,7 +32,7 @@ while (true)
     await client.SendAsync(encoder, requestMessage);
     var resp = await client.ReceiveAsync();
     
-    await Task.Delay(5000);
+    await Task.Delay(1000);
 }
 
 //

@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
 using Bedrock.Framework;
 using Google.Protobuf;
@@ -15,6 +16,10 @@ var host = SuperSocketHostBuilder.Create<CommandMessage, CommandFilterPipeLine>(
     .UseCommand(options => options.AddCommand<KestrelServer.SSServer.LoginCommand>())
     .UsePackageEncoder<CommandEncoder>()
     .UseSessionFactory<KestrelServer.SSServer.TestSessionFactory>()
+    .ConfigureSocketOptions(socket =>
+    {
+        socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+    })
     .UseIOCPTcpChannelCreatorFactory()
     .Build();
 
