@@ -11,7 +11,7 @@ var encoder = new CommandEncoder();
 
 var client = new IOCPTcpEasyClient<CommandMessage, CommandMessage>(new CommandFilterPipeLine(), encoder).AsClient();
 
-await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, 8081));
+await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, 8050));
 
 var sendCount = 0;
 var watch = new Stopwatch();
