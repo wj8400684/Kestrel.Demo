@@ -11,14 +11,14 @@ using SuperSocket;
 using SuperSocket.Command;
 using SuperSocket.IOCPTcpChannelCreatorFactory;
 
-// var host = SuperSocketHostBuilder.Create<CommandMessage, CommandFilterPipeLine>()
-//     .UseCommand(options => options.AddCommand<KestrelServer.SSServer.LoginCommand>())
-//     .UsePackageEncoder<CommandEncoder>()
-//     .UseSessionFactory<KestrelServer.SSServer.TestSessionFactory>()
-//     .UseIOCPTcpChannelCreatorFactory()
-//     .Build();
-//
-// await host.RunAsync();
+var host = SuperSocketHostBuilder.Create<CommandMessage, CommandFilterPipeLine>()
+    .UseCommand(options => options.AddCommand<KestrelServer.SSServer.LoginCommand>())
+    .UsePackageEncoder<CommandEncoder>()
+    .UseSessionFactory<KestrelServer.SSServer.TestSessionFactory>()
+    .UseIOCPTcpChannelCreatorFactory()
+    .Build();
+
+await host.RunAsync();
 //
 //
 // var services = new ServiceCollection();

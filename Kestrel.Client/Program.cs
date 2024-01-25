@@ -11,26 +11,18 @@ var encoder = new CommandEncoder();
 
 var client = new IOCPTcpEasyClient<CommandMessage, CommandMessage>(new CommandFilterPipeLine(), encoder).AsClient();
 
-//var connection = await client.ConnectAsync(new IPEndPoint(IPAddress.Parse("159.75.132.21"), 8081));
-
-var connection = await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, 8081));
+var connection = await client.ConnectAsync(new IPEndPoint(IPAddress.Parse("159.75.132.21"), 8081));
 
 if (!connection)
 {
-    Console.WriteLine("连接成功");
+    Console.WriteLine("连接失败");
     Console.ReadKey();
 }
 
-var sendCount = 0;
-var watch = new Stopwatch();
+Console.WriteLine("连接成功");
 
-Console.WriteLine("开始发送数据");
-
-watch.Start();
-
-while (watch.Elapsed.TotalSeconds < 60)
+while (true)
 {
-    sendCount++;
     var requestMessage = CommandMessage.NewMessage(CommandType.Login, new LoginMessageRequest
     {
         Username = "wujun",
@@ -39,13 +31,36 @@ while (watch.Elapsed.TotalSeconds < 60)
 
     await client.SendAsync(encoder, requestMessage);
     var resp = await client.ReceiveAsync();
+    
+    await Task.Delay(5000);
 }
 
-watch.Stop();
-
-Console.WriteLine($"支持完毕总共发送{sendCount}");
-
-Console.ReadKey();
+//
+// var sendCount = 0;
+// var watch = new Stopwatch();
+//
+// Console.WriteLine("开始发送数据");
+//
+// watch.Start();
+//
+// while (watch.Elapsed.TotalSeconds < 60)
+// {
+//     sendCount++;
+//     var requestMessage = CommandMessage.NewMessage(CommandType.Login, new LoginMessageRequest
+//     {
+//         Username = "wujun",
+//         Password = "ssss",
+//     });
+//
+//     await client.SendAsync(encoder, requestMessage);
+//     var resp = await client.ReceiveAsync();
+// }
+//
+// watch.Stop();
+//
+// Console.WriteLine($"支持完毕总共发送{sendCount}");
+//
+// Console.ReadKey();
 //
 //
 //
