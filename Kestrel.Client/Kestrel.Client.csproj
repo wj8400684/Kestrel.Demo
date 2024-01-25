@@ -4,7 +4,20 @@
         <OutputType>Exe</OutputType>
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
+        <Nullable>disable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Kestrel.Core\Kestrel.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Bedrock.Framework" Version="0.1.63-alpha.gf69fa1b135" />
+        <PackageReference Include="SuperSocket.Client" Version="2.0.0-beta.18.421" />
+        <PackageReference Include="SuperSocket.IOCPTcpEasyClient" Version="2.0.0-beta.18.200" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <RdXmlFile Include="rd.xml" />
+    </ItemGroup>
 </Project>

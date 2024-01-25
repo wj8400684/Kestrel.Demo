@@ -2,6 +2,10 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kestrel.Server", "Kestrel.Server\Kestrel.Server.csproj", "{3E27856C-7262-4D6C-BB1F-877E08F57952}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kestrel.Client", "Kestrel.Client\Kestrel.Client.csproj", "{066DF1F6-7CCB-4345-90CE-A061ED8B26EE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kestrel.Core", "Kestrel.Core\Kestrel.Core.csproj", "{CEDBBF19-00AE-49E3-8412-027D7CC5809E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +16,13 @@ Global
 		{3E27856C-7262-4D6C-BB1F-877E08F57952}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3E27856C-7262-4D6C-BB1F-877E08F57952}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3E27856C-7262-4D6C-BB1F-877E08F57952}.Release|Any CPU.Build.0 = Release|Any CPU
+		{066DF1F6-7CCB-4345-90CE-A061ED8B26EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{066DF1F6-7CCB-4345-90CE-A061ED8B26EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{066DF1F6-7CCB-4345-90CE-A061ED8B26EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{066DF1F6-7CCB-4345-90CE-A061ED8B26EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CEDBBF19-00AE-49E3-8412-027D7CC5809E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CEDBBF19-00AE-49E3-8412-027D7CC5809E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CEDBBF19-00AE-49E3-8412-027D7CC5809E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CEDBBF19-00AE-49E3-8412-027D7CC5809E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

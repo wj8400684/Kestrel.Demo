@@ -7,13 +7,6 @@
         please contribute back.
     -->
     <Application>
-        <Assembly Name="KestrelCore" Dynamic="Required All"/>
-        <Assembly Name="SuperSocket.Channel" Dynamic="Required All"/>
-        <Assembly Name="SuperSocket.Command" Dynamic="Required All"/>
-        <Assembly Name="SuperSocket.Server" Dynamic="Required All"/>
-        <Assembly Name="SuperSocket.Primitives" Dynamic="Required All"/>
-        <Assembly Name="SuperSocket.SessionContainer" Dynamic="Required All"/>
-        <Assembly Name="SuperSocket.IOCPTcpChannel" Dynamic="Required All"/>
-        <Assembly Name="SuperSocket.IOCPTcpChannelCreatorFactory" Dynamic="Required All"/>
+        <Assembly Name="Kestrel.Core" Dynamic="Required All"/>
     </Application>
 </Directives>

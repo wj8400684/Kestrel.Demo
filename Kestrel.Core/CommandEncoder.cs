@@ -1,7 +1,6 @@
 using System.Buffers;
 using System.Buffers.Binary;
 using Google.Protobuf;
-using KestrelCore;
 using SuperSocket.ProtoBase;
 
 namespace KestrelCore;
