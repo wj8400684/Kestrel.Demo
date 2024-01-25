@@ -1,10 +1,12 @@
 using Bedrock.Framework.Protocols;
 using KestrelCore;
 using Microsoft.AspNetCore.Connections;
+using SuperSocket;
 
 namespace KestrelServer.Server;
 
-public sealed class AppChannel(ConnectionContext connection) : IAsyncDisposable
+public sealed class AppChannel(ConnectionContext connection, ILogger logger)
+    : IAsyncDisposable, ILogger, ILoggerAccessor
 {
     private readonly FixedHeaderPipelineFilter _pipelineFilter = new();
     private readonly ProtocolReader _reader = connection.CreateReader();
@@ -13,9 +15,9 @@ public sealed class AppChannel(ConnectionContext connection) : IAsyncDisposable
     public bool IsLogin { get; set; }
 
     public System.Net.EndPoint? RemoteEndPoint => connection.RemoteEndPoint;
-    
+
     public System.Net.EndPoint? LocalEndPoint => connection.LocalEndPoint;
-    
+
     public async ValueTask<CommandMessage?> ReadAsync(CancellationToken cancellationToken = default)
     {
         ProtocolReadResult<CommandMessage> result;
@@ -44,4 +46,32 @@ public sealed class AppChannel(ConnectionContext connection) : IAsyncDisposable
         await _writer.DisposeAsync();
         await connection.DisposeAsync();
     }
+
+    #region ILogger
+
+    ILogger GetLogger()
+    {
+        return logger;
+    }
+
+    void ILogger.Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception,
+        Func<TState, Exception, string> formatter)
+    {
+        GetLogger().Log(logLevel, eventId, state, exception,
+            (s, e) => $"Session[{connection.ConnectionId}]: {formatter(s, e)}");
+    }
+
+    bool ILogger.IsEnabled(LogLevel logLevel)
+    {
+        return GetLogger().IsEnabled(logLevel);
+    }
+
+    IDisposable? ILogger.BeginScope<TState>(TState state)
+    {
+        return GetLogger().BeginScope(state);
+    }
+
+    public ILogger Logger => this;
+
+    #endregion
 }

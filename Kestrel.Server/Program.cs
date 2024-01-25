@@ -51,11 +51,12 @@ using SuperSocket.IOCPTcpChannelCreatorFactory;
 
 var builder = WebApplication.CreateSlimBuilder(args);
 
+builder.Services.AddLogging();
 builder.Services.AddCommands<LoginCommand>();
 
 builder.WebHost.ConfigureKestrel(options =>
 {
-    options.ListenAnyIP(8050, l => l.UseConnectionHandler<CommandConnectionHandler>());
+    options.ListenAnyIP(8081, l => l.UseConnectionHandler<CommandConnectionHandler>());
 });
 
 var app = builder.Build();

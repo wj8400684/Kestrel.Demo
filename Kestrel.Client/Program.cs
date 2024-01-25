@@ -11,7 +11,15 @@ var encoder = new CommandEncoder();
 
 var client = new IOCPTcpEasyClient<CommandMessage, CommandMessage>(new CommandFilterPipeLine(), encoder).AsClient();
 
-await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, 8050));
+//var connection = await client.ConnectAsync(new IPEndPoint(IPAddress.Parse("159.75.132.21"), 8081));
+
+var connection = await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, 8081));
+
+if (!connection)
+{
+    Console.WriteLine("连接成功");
+    Console.ReadKey();
+}
 
 var sendCount = 0;
 var watch = new Stopwatch();
@@ -28,7 +36,7 @@ while (watch.Elapsed.TotalSeconds < 60)
         Username = "wujun",
         Password = "ssss",
     });
-    
+
     await client.SendAsync(encoder, requestMessage);
     var resp = await client.ReceiveAsync();
 }
