@@ -18,8 +18,11 @@ public class CommandFilterPipeLine() : FixedHeaderPipelineFilter<CommandMessage>
         if (buffer.IsSingleSegment)
             BinaryPrimitives.TryReadInt32LittleEndian(buffer.FirstSpan, out bodyLength);
         else
-            BinaryPrimitives.TryReadInt32LittleEndian(buffer.ToArray(), out bodyLength);
-
+        {
+            var reader = new SequenceReader<byte>(buffer);
+            reader.TryReadLittleEndian(out bodyLength);
+        }
+        
         return bodyLength;
     }
 }

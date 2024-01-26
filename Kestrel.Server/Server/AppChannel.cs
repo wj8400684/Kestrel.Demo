@@ -14,6 +14,8 @@ public sealed class AppChannel(ConnectionContext connection, ILogger logger)
 
     public bool IsLogin { get; set; }
 
+    public string ConnectionId => connection.ConnectionId;
+    
     public System.Net.EndPoint? RemoteEndPoint => connection.RemoteEndPoint;
 
     public System.Net.EndPoint? LocalEndPoint => connection.LocalEndPoint;

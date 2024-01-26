@@ -5,11 +5,11 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <InvariantGlobalization>true</InvariantGlobalization>
-        <PublishAot>true</PublishAot>
         <AssemblyName>KestrelServer</AssemblyName>
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="SuperSocket.IOCPTcpChannelCreatorFactory" Version="2.0.0-beta.18.200" />
+        <PackageReference Include="SuperSocket.Udp" Version="2.0.0-beta.18.421" />
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\Kestrel.Core\Kestrel.Core.csproj" />

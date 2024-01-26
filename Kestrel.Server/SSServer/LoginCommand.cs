@@ -9,8 +9,6 @@ public sealed class LoginCommand : IAsyncCommand<TestSession,CommandMessage>
 {
     public async ValueTask ExecuteAsync(TestSession session, CommandMessage package)
     {
-        session.LogInformation("登陆");
-        
         var request = LoginMessageRequest.Parser.ParseFrom(package.Content);
         
         await session.SendMessageAsync(new CommandMessage

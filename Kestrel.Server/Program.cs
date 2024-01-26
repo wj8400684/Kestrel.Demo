@@ -11,16 +11,13 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using SuperSocket;
 using SuperSocket.Command;
 using SuperSocket.IOCPTcpChannelCreatorFactory;
+using SuperSocket.Udp;
 
 var host = SuperSocketHostBuilder.Create<CommandMessage, CommandFilterPipeLine>()
     .UseCommand(options => options.AddCommand<KestrelServer.SSServer.LoginCommand>())
     .UsePackageEncoder<CommandEncoder>()
     .UseSessionFactory<KestrelServer.SSServer.TestSessionFactory>()
-    .ConfigureSocketOptions(socket =>
-    {
-        socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-    })
-    .UseIOCPTcpChannelCreatorFactory()
+    //.UseIOCPTcpChannelCreatorFactory()
     .Build();
 
 await host.RunAsync();
@@ -57,6 +54,7 @@ await host.RunAsync();
 var builder = WebApplication.CreateSlimBuilder(args);
 
 builder.Services.AddLogging();
+builder.Services.AddSingleton<KestrelServer.ISessionContainer, InProcSessionContainer>();
 builder.Services.AddCommands<LoginCommand>();
 
 builder.WebHost.ConfigureKestrel(options =>

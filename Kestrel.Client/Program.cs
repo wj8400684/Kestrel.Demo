@@ -7,17 +7,12 @@ using Microsoft.Extensions.Logging;
 using SuperSocket.Client;
 using SuperSocket.IOCPEasyClient;
 
+
 var encoder = new CommandEncoder();
 
 var client = new IOCPTcpEasyClient<CommandMessage, CommandMessage>(new CommandFilterPipeLine(), encoder).AsClient();
 
-var connection = await client.ConnectAsync(new IPEndPoint(IPAddress.Parse("159.75.132.21"), 8081));
-
-if (!connection)
-{
-    Console.WriteLine("连接失败");
-    Console.ReadKey();
-}
+await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, 8081));
 
 Console.WriteLine("连接成功");
 
@@ -34,6 +29,34 @@ while (true)
     
     await Task.Delay(1000);
 }
+
+// var encoder = new CommandEncoder();
+//
+// var client = new IOCPTcpEasyClient<CommandMessage, CommandMessage>(new CommandFilterPipeLine(), encoder).AsClient();
+//
+// var connection = await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, 8081));
+//
+// if (!connection)
+// {
+//     Console.WriteLine("连接失败");
+//     Console.ReadKey();
+// }
+//
+// Console.WriteLine("连接成功");
+//
+// while (true)
+// {
+//     var requestMessage = CommandMessage.NewMessage(CommandType.Login, new LoginMessageRequest
+//     {
+//         Username = "wujun",
+//         Password = "ssss",
+//     });
+//
+//     await client.SendAsync(encoder, requestMessage);
+//     var resp = await client.ReceiveAsync();
+//     
+//     await Task.Delay(1000);
+// }
 
 //
 // var sendCount = 0;
