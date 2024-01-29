@@ -31,53 +31,53 @@ using SuperSocket.IOCPTcpChannelCreatorFactory;
 //
 // await host.RunAsync();
 //
-//
-// var services = new ServiceCollection();
-// services.AddLogging(builder =>
-// {
-//     builder.SetMinimumLevel(LogLevel.Debug);
-//     builder.AddConsole();
-// });
-//
-// services.TryAddEnumerable(ServiceDescriptor.Singleton<IAsyncCommand, LoginCommand>());
-//
-// var serviceProvider = services.BuildServiceProvider();
 
-// var server = new ServerBuilder(serviceProvider)
-//     .ListenNamedPipe(new Bedrock.Framework.NamedPipeEndPoint("ss"),
-//         s => { s.UseConnectionHandler<CommandConnectionHandler>(); }
-//     )
-//     .Build();
+var services = new ServiceCollection();
+services.AddLogging(builder =>
+{
+    builder.SetMinimumLevel(LogLevel.Debug);
+    builder.AddConsole();
+});
+
+services.TryAddEnumerable(ServiceDescriptor.Singleton<IAsyncCommand, LoginCommand>());
+
+var serviceProvider = services.BuildServiceProvider();
+
+var server = new ServerBuilder(serviceProvider)
+    .ListenNamedPipe(new Bedrock.Framework.NamedPipeEndPoint("ss"),
+        s => { s.UseConnectionHandler<CommandConnectionHandler>(); }
+    )
+    .Build();
 //
 // var server = new ServerBuilder(serviceProvider)
 //     .UseSockets(l => { l.ListenAnyIP(8081, c => c.UseConnectionHandler<CommandConnectionHandler>()); })
 //     .Build();
+
+await server.StartAsync();
+
+var tcs = new TaskCompletionSource();
+Console.WriteLine("启动成功");
+Console.CancelKeyPress += (sender, e) => tcs.TrySetResult();
+await tcs.Task;
 //
-// await server.StartAsync();
+// var builder = WebApplication.CreateSlimBuilder(args);
 //
-// var tcs = new TaskCompletionSource();
-// Console.WriteLine("启动成功");
-// Console.CancelKeyPress += (sender, e) => tcs.TrySetResult();
-// await tcs.Task;
-
-var builder = WebApplication.CreateSlimBuilder(args);
-
-// builder.Services.AddKestrelSocketServer<CommandMessage, FixedHeaderPipelineFilter>()
-//                 .UseSession<AppSession>()
-//                 .UseClearIdleSession()
-//                 .UseInProcSessionContainer()
-//                 .ConfigServer(service =>
-//                 {
-//                     service.AddLogging();
-//                     service.AddSession();
-//                 });
-
-builder.Services.AddLogging();
-builder.Services.ConfigureOptions<KestrelServerOptionsSetup>();
-builder.Services.AddSingleton<IMessageFactoryPool, CommandMessageFactoryPool>();
-builder.Services.AddSingleton<KestrelServer.ISessionContainer, InProcSessionContainer>();
-builder.Services.AddCommands<LoginCommand>();
-
-var app = builder.Build();
-
-app.Run();
+// // builder.Services.AddKestrelSocketServer<CommandMessage, FixedHeaderPipelineFilter>()
+// //                 .UseSession<AppSession>()
+// //                 .UseClearIdleSession()
+// //                 .UseInProcSessionContainer()
+// //                 .ConfigServer(service =>
+// //                 {
+// //                     service.AddLogging();
+// //                     service.AddSession();
+// //                 });
+//
+// builder.Services.AddLogging();
+// builder.Services.ConfigureOptions<KestrelServerOptionsSetup>();
+// builder.Services.AddSingleton<IMessageFactoryPool, CommandMessageFactoryPool>();
+// builder.Services.AddSingleton<KestrelServer.ISessionContainer, InProcSessionContainer>();
+// builder.Services.AddCommands<LoginCommand>();
+//
+// var app = builder.Build();
+//
+// app.Run();
