@@ -21,28 +21,28 @@ using SuperSocket.IOCPTcpChannelCreatorFactory;
 // await host.RunAsync();
 //
 //
-// var services = new ServiceCollection();
-// services.AddLogging(builder =>
-// {
-//     builder.SetMinimumLevel(LogLevel.Debug);
-//     builder.AddConsole();
-// });
-//
-// services.TryAddEnumerable(ServiceDescriptor.Singleton<IAsyncCommand, LoginCommand>());
-//
-// var serviceProvider = services.BuildServiceProvider();
+var services = new ServiceCollection();
+services.AddLogging(builder =>
+{
+    builder.SetMinimumLevel(LogLevel.Debug);
+    builder.AddConsole();
+});
 
-// var server = new ServerBuilder(serviceProvider)
-//     .ListenNamedPipe(new Bedrock.Framework.NamedPipeEndPoint("ss"),
-//         s => { s.UseConnectionHandler<CommandConnectionHandler>(); }
-//     )
-//     .Build();
-//
-// var server = new ServerBuilder(serviceProvider)
-//     .UseSockets(l => { l.ListenAnyIP(8081, c => c.UseConnectionHandler<CommandConnectionHandler>()); })
-//     .Build();
-//
-// await server.StartAsync();
+services.TryAddEnumerable(ServiceDescriptor.Singleton<IAsyncCommand, LoginCommand>());
+
+var serviceProvider = services.BuildServiceProvider();
+
+var server = new ServerBuilder(serviceProvider)
+    .ListenNamedPipe(new Bedrock.Framework.NamedPipeEndPoint("ss"),
+        s => { s.UseConnectionHandler<CommandConnectionHandler>(); }
+    )
+    .Build();
+
+var server = new ServerBuilder(serviceProvider)
+    .UseSockets(l => { l.ListenAnyIP(8081, c => c.UseConnectionHandler<CommandConnectionHandler>()); })
+    .Build();
+
+await server.StartAsync();
 //
 // var tcs = new TaskCompletionSource();
 // Console.WriteLine("启动成功");
