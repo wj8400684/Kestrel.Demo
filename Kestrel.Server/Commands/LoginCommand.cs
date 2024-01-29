@@ -1,3 +1,4 @@
+using Google.Protobuf;
 using KestrelCore;
 using KestrelServer.Server;
 
@@ -7,16 +8,21 @@ public sealed class LoginCommand : RequestAsyncCommand<LoginMessageRequest>
 {
     public override CommandType CommandType => CommandType.Login;
 
-    protected override ValueTask OnHandlerAsync(AppChannel session, 
-        CommandMessage package, 
+    protected override async ValueTask OnHandlerAsync(AppChannel session, 
+        CommandMessage message, 
         LoginMessageRequest request,
         CancellationToken cancellationToken)
     {
-        session.LogInformation("登陆");
-        
-        return session.WriterAsync(CommandMessage.NewReplyMessage(CommandType.LoginReply, new LoginMessageReply
+        var reply = new CommandMessage
         {
-            Token = "sssss",
-        }), cancellationToken);
+            SuccessFul = true,
+            Identifier = message.Identifier,
+            Content = new LoginMessageReply
+            {
+                Token = "dddddd"
+            }.ToByteString()
+        };
+        
+        await session.WriterAsync(reply, cancellationToken);
     }
 }

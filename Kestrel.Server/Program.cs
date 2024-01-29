@@ -3,6 +3,7 @@ using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
 using Bedrock.Framework;
 using Google.Protobuf;
+using Kestrel.Core;
 using KestrelCore;
 using KestrelServer;
 using KestrelServer.Commands;
@@ -13,14 +14,14 @@ using SuperSocket.Command;
 using SuperSocket.IOCPTcpChannelCreatorFactory;
 using SuperSocket.Udp;
 
-var host = SuperSocketHostBuilder.Create<CommandMessage, CommandFilterPipeLine>()
-    .UseCommand(options => options.AddCommand<KestrelServer.SSServer.LoginCommand>())
-    .UsePackageEncoder<CommandEncoder>()
-    .UseSessionFactory<KestrelServer.SSServer.TestSessionFactory>()
-    //.UseIOCPTcpChannelCreatorFactory()
-    .Build();
-
-await host.RunAsync();
+// var host = SuperSocketHostBuilder.Create<CommandMessage, CommandFilterPipeLine>()
+//     .UseCommand(options => options.AddCommand<KestrelServer.SSServer.LoginCommand>())
+//     .UsePackageEncoder<CommandEncoder>()
+//     .UseSessionFactory<KestrelServer.SSServer.TestSessionFactory>()
+//     //.UseIOCPTcpChannelCreatorFactory()
+//     .Build();
+//
+// await host.RunAsync();
 //
 //
 // var services = new ServiceCollection();

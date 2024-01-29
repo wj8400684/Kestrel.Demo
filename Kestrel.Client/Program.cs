@@ -2,33 +2,75 @@
 using System.Net;
 using Bedrock.Framework;
 using Bedrock.Framework.Protocols;
+using Kestrel.Client;
 using KestrelCore;
 using Microsoft.Extensions.Logging;
 using SuperSocket.Client;
 using SuperSocket.IOCPEasyClient;
 
+var client = new MessageDispatchClient();
 
-var encoder = new CommandEncoder();
+var result = await client.StartAsync();
 
-var client = new IOCPTcpEasyClient<CommandMessage, CommandMessage>(new CommandFilterPipeLine(), encoder).AsClient();
-
-await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, 8081));
+if (!result.Successful)
+{
+    Console.Error.WriteLine(result.Error);
+    Console.ReadKey();
+}
 
 Console.WriteLine("连接成功");
 
-while (true)
+var sendCount = 0;
+var watch = new Stopwatch();
+
+Console.WriteLine("开始发送数据");
+
+watch.Start();
+
+while (watch.Elapsed.TotalSeconds < 60)
 {
+    sendCount++;
+
     var requestMessage = CommandMessage.NewMessage(CommandType.Login, new LoginMessageRequest
     {
         Username = "wujun",
         Password = "ssss",
     });
 
-    await client.SendAsync(encoder, requestMessage);
-    var resp = await client.ReceiveAsync();
-    
-    await Task.Delay(1000);
+    var commandResponse = await client.GetResponseAsync<LoginMessageReply>(requestMessage);
+
+    var content = commandResponse.DecodeMessage();
+
 }
+
+watch.Stop();
+
+Console.WriteLine($"支持完毕总共发送{sendCount}");
+
+Console.ReadKey();
+//
+//
+// var encoder = new CommandEncoder();
+//
+// var client = new IOCPTcpEasyClient<CommandMessage, CommandMessage>(new CommandFilterPipeLine(), encoder).AsClient();
+//
+// await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, 8081));
+//
+// Console.WriteLine("连接成功");
+//
+// while (true)
+// {
+//     var requestMessage = CommandMessage.NewMessage(CommandType.Login, new LoginMessageRequest
+//     {
+//         Username = "wujun",
+//         Password = "ssss",
+//     });
+//
+//     await client.SendAsync(encoder, requestMessage);
+//     var resp = await client.ReceiveAsync();
+//     
+//     await Task.Delay(1000);
+// }
 
 // var encoder = new CommandEncoder();
 //

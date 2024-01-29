@@ -22,5 +22,8 @@
             <GrpcServices>Client</GrpcServices>
         </Protobuf>
     </ItemGroup>
+    <ItemGroup>
+      <Folder Include="Dispatch\" />
+    </ItemGroup>
     
 </Project>
