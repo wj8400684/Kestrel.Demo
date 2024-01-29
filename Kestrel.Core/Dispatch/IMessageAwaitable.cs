@@ -9,11 +9,4 @@ public interface IMessageAwaitable : IDisposable
     void Fail(Exception exception);
 
     void Cancel();
-
-
-    void CompleteForValueTask(CommandMessage message);
-
-    void FailForValueTask(Exception exception);
-
-    void CancelForValueTask();
 }

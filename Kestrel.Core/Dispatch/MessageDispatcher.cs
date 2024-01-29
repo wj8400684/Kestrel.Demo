@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using Google.Protobuf;
 using KestrelCore;
 
@@ -6,15 +7,14 @@ namespace Kestrel.Core;
 public sealed class MessageDispatcher : IDisposable
 {
     private bool _isDisposed;
-    private readonly Dictionary<uint, IMessageAwaitable> _waiters = new();
+    private readonly ConcurrentDictionary<uint, IMessageAwaitable> _waiters = new();
 
     public MessageAwaitable<TResponseMessage> AddAwaitable<TResponseMessage>(uint messageIdentifier)
         where TResponseMessage : IMessage<TResponseMessage>
     {
         var awaitable = new MessageAwaitable<TResponseMessage>(messageIdentifier, this);
 
-        lock (_waiters)
-            _waiters.TryAdd(messageIdentifier, awaitable);
+        _waiters.TryAdd(messageIdentifier, awaitable);
 
         return awaitable;
     }
@@ -28,7 +28,7 @@ public sealed class MessageDispatcher : IDisposable
             {
                 var packetAwait = enumerator.Current.Value;
 
-                packetAwait.CancelForValueTask();
+                packetAwait.Cancel();
             }
 
             _waiters.Clear();
@@ -65,7 +65,7 @@ public sealed class MessageDispatcher : IDisposable
             {
                 var packetAwait = enumerator.Current.Value;
 
-                packetAwait.FailForValueTask(exception);
+                packetAwait.Cancel();
             }
 
             _waiters.Clear();
@@ -74,32 +74,26 @@ public sealed class MessageDispatcher : IDisposable
 
     public void RemoveAwaitable(uint identifier)
     {
-        lock (_waiters)
-            _waiters.Remove(identifier);
+        _waiters.TryRemove(identifier, out _);
     }
 
     public bool TryDispatch(CommandMessage message)
     {
         ArgumentNullException.ThrowIfNull(message);
 
-        IMessageAwaitable? awaitable;
-
-        lock (_waiters)
-        {
-            ThrowIfDisposed();
-
-            if (!_waiters.Remove(message.Identifier, out awaitable))
-                return false;
-        }
-
-        awaitable.CompleteForValueTask(message);
+        ThrowIfDisposed();
+        
+        if (!_waiters.Remove(message.Identifier, out var awaitable))
+            return false;
+        
+        awaitable.Complete(message);
 
         return true;
     }
 
     void ThrowIfDisposed()
     {
-        if (!_isDisposed) 
+        if (!_isDisposed)
             return;
         throw new ObjectDisposedException(nameof(MessageDispatcher));
     }

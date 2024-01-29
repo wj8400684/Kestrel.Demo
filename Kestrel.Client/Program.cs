@@ -39,7 +39,7 @@ while (watch.Elapsed.TotalSeconds < 60)
 
     var commandResponse = await client.GetResponseAsync<LoginMessageReply>(requestMessage);
 
-    var content = commandResponse.DecodeMessage();
+    //var content = commandResponse.DecodeMessage();
 
 }
 

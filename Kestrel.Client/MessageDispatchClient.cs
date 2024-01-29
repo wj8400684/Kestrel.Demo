@@ -112,7 +112,7 @@ public class MessageDispatchClient
 
         try
         {
-            return await messageAwaitable.WaitForValueTaskAsync(cancellationToken);
+            return await messageAwaitable.WaitAsync(cancellationToken);
         }
         catch (Exception e)
         {
