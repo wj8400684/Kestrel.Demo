@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Sockets;
 using Bedrock.Framework.Protocols;
 using Kestrel.Core;
 using Kestrel.Core.Messages;
@@ -27,8 +28,9 @@ public class MessageDispatchClient2
     {
         var service = new ServiceCollection();
         service.AddLogging();
-        service.AddNamedPipeConnectionFactory();
-       
+        service.AddSocketConnectionFactory();
+        service.ConfigureOptions<SocketTransportOptionsSetup>();
+        
         _provider = service.BuildServiceProvider();
         _connectionFactory = _provider.GetRequiredService<IConnectionFactory>();
     }
@@ -36,10 +38,11 @@ public class MessageDispatchClient2
     public async ValueTask<ValueStartResult> StartAsync()
     {
         ConnectionContext connectionContext;
+        var socketPath = Path.Combine(Path.GetTempPath(), "socket.tmp");
 
         try
         {
-            connectionContext = await _connectionFactory.ConnectAsync(new Bedrock.Framework.NamedPipeEndPoint("ss"));
+            connectionContext = await _connectionFactory.ConnectAsync(new UnixDomainSocketEndPoint(socketPath));
         }
         catch (Exception e)
         {

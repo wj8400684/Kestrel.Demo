@@ -46,20 +46,20 @@ services.AddCommands<LoginCommand>();
 
 var serviceProvider = services.BuildServiceProvider();
 
-var server = new ServerBuilder(serviceProvider)
-    .ListenNamedPipe(new Bedrock.Framework.NamedPipeEndPoint("ss"),
-        s => { s.UseConnectionHandler<CommandConnectionHandler>(); }
-    )
-    .Build();
+var socketPath = Path.Combine(Path.GetTempPath(), "socket.tmp");
 //
-// var server = new ServerBuilder(serviceProvider)
-//     .UseSockets(l => { l.ListenAnyIP(8081, c => c.UseConnectionHandler<CommandConnectionHandler>()); })
-//     .Build();
+
+if (File.Exists(socketPath))
+    File.Delete(socketPath);
+
+var server = new ServerBuilder(serviceProvider)
+    .UseSockets(l => { l.ListenUnixSocket(socketPath, c => c.UseConnectionHandler<CommandConnectionHandler>()); })
+    .Build();
 
 await server.StartAsync();
 
 var tcs = new TaskCompletionSource();
-Console.WriteLine("启动成功");
+Console.WriteLine($"启动成功-{socketPath}");
 Console.CancelKeyPress += (sender, e) => tcs.TrySetResult();
 await tcs.Task;
 //
