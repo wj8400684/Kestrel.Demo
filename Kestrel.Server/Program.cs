@@ -14,11 +14,11 @@ using SuperSocket.Command;
 using SuperSocket.IOCPTcpChannelCreatorFactory;
 
 var host = SuperSocketHostBuilder.Create<CommandMessage, CommandFilterPipeLine>()
-    .UseCommand(options => options.AddCommandAssembly(typeof(KestrelServer.SSServer.LoginCommand).Assembly))
     .UsePackageEncoder<CommandEncoder>()
     .UsePackageDecoder<CommandDecoder>()
+    .UseCommand(options => options.AddCommand<KestrelServer.SSServer.LoginCommand>())
     .UseSessionFactory<KestrelServer.SSServer.TestSessionFactory>()
-    .UseIOCPTcpChannelCreatorFactory()
+    //.UseIOCPTcpChannelCreatorFactory()
     .UseInProcSessionContainer()
     .ConfigureServices((_, service) =>
     {

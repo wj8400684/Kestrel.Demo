@@ -4,7 +4,7 @@ using SuperSocket.ProtoBase;
 
 namespace Kestrel.Core.Messages;
 
-public abstract class CommandMessage : IKeyedPackageInfo<CommandType>
+public abstract partial class CommandMessage : IKeyedPackageInfo<CommandType>
 {
     public const byte HeaderSize = sizeof(short);
     
@@ -16,45 +16,6 @@ public abstract class CommandMessage : IKeyedPackageInfo<CommandType>
         Key = key;
         Type = GetType();
     }
-
-    #region command inilizetion
-
-    internal static void LoadAllCommand()
-    {
-        var packets = typeof(CommandMessage).Assembly.GetTypes()
-            .Where(t => typeof(CommandMessage).IsAssignableFrom(t))
-            .Where(t => t is { IsAbstract: false, IsClass: true })
-            .Select(t => (CommandMessage?)Activator.CreateInstance(t));
-
-        using var enumerator = packets.GetEnumerator();
-        while (enumerator.MoveNext())
-        {
-            if (enumerator.Current != null)
-                CommandTypes.TryAdd(enumerator.Current.GetType(), enumerator.Current.Key);
-        }
-    }
-
-    public static CommandType GetCommandKey<TPacket>()
-    {
-        var type = typeof(TPacket);
-
-        if (!CommandTypes.TryGetValue(type, out var key))
-            throw new Exception($"{type.Name} δ�̳�PlayPacket");
-
-        return key;
-    }
-
-    public static List<KeyValuePair<Type, CommandType>> GetCommands()
-    {
-        return CommandTypes.ToList();
-    }
-
-    static CommandMessage()
-    {
-        LoadAllCommand();
-    }
-
-    #endregion
 
     /// <summary>
     /// 命令
