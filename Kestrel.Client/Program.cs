@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 using SuperSocket.Client;
 using SuperSocket.IOCPEasyClient;
 
-var client = new MessageDispatchClient2();
+var client = new MessageDispatchClient();
 
 var result = await client.StartAsync();
 

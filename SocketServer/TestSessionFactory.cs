@@ -2,7 +2,7 @@ using Kestrel.Core.Messages;
 using SuperSocket;
 using SuperSocket.ProtoBase;
 
-namespace KestrelServer.SSServer;
+namespace SocketServer;
 
 public sealed class TestSessionFactory(IPackageEncoder<CommandMessage> encoder) : ISessionFactory
 {

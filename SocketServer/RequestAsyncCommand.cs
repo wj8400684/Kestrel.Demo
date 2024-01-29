@@ -1,7 +1,8 @@
 using Kestrel.Core.Messages;
+using Microsoft.Extensions.Logging;
 using SuperSocket.Command;
 
-namespace KestrelServer.SSServer;
+namespace SocketServer;
 
 public abstract class RequestAsyncCommand<TRequest> : IAsyncCommand<TestSession, TRequest>
     where TRequest : CommandMessageWithIdentifier
@@ -30,11 +31,11 @@ public abstract class RequestAsyncCommand<TRequest> : IAsyncCommand<TestSession,
         CancellationToken cancellationToken);
 }
 
-public abstract class RequestAsyncCommand<TRequest, TResponse> : IAsyncCommand<TestSession, TRequest>
+public abstract class RequestAsyncCommand<TRequest, TResponse> : IAsyncCommand<TestSession, CommandMessage>
     where TRequest : CommandMessageWithIdentifier
     where TResponse : CommandRespMessageWithIdentifier, new()
 {
-    ValueTask IAsyncCommand<TestSession, TRequest>.ExecuteAsync(TestSession session, TRequest package)
+    ValueTask IAsyncCommand<TestSession, CommandMessage>.ExecuteAsync(TestSession session, CommandMessage package)
     {
         return SchedulerAsync(session, package, CancellationToken.None);
     }

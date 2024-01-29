@@ -1,10 +1,11 @@
 using Kestrel.Core.Messages;
 using KestrelCore;
+using Microsoft.Extensions.Logging;
 using SuperSocket.Channel;
 using SuperSocket.ProtoBase;
 using SuperSocket.Server;
 
-namespace KestrelServer.SSServer;
+namespace SocketServer;
 
 public sealed class TestSession(IPackageEncoder<CommandMessage> encoder) : AppSession
 {

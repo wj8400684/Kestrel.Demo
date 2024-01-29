@@ -1,7 +1,9 @@
 using Kestrel.Core.Messages;
+using SuperSocket;
 using SuperSocket.Command;
 
-namespace KestrelServer.SSServer;
+namespace SocketServer;
+
 
 [Command(Key = (byte)CommandType.Login)]
 public sealed class LoginCommand : RequestAsyncCommand<LoginRequestMessage, LoginReplyMessage>
