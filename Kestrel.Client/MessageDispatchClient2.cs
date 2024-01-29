@@ -27,8 +27,7 @@ public class MessageDispatchClient2
     {
         var service = new ServiceCollection();
         service.AddLogging();
-        service.AddSocketConnectionFactory();
-        service.ConfigureOptions<SocketTransportOptionsSetup>();
+        service.AddNamedPipeConnectionFactory();
        
         _provider = service.BuildServiceProvider();
         _connectionFactory = _provider.GetRequiredService<IConnectionFactory>();
@@ -40,7 +39,7 @@ public class MessageDispatchClient2
 
         try
         {
-            connectionContext = await _connectionFactory.ConnectAsync(new IPEndPoint(IPAddress.Loopback, 8081));
+            connectionContext = await _connectionFactory.ConnectAsync(new Bedrock.Framework.NamedPipeEndPoint("ss"));
         }
         catch (Exception e)
         {

@@ -39,7 +39,10 @@ services.AddLogging(builder =>
     builder.AddConsole();
 });
 
-services.TryAddEnumerable(ServiceDescriptor.Singleton<IAsyncCommand, LoginCommand>());
+services.AddLogging();
+services.AddSingleton<IMessageFactoryPool, CommandMessageFactoryPool>();
+services.AddSingleton<KestrelServer.ISessionContainer, InProcSessionContainer>();
+services.AddCommands<LoginCommand>();
 
 var serviceProvider = services.BuildServiceProvider();
 
