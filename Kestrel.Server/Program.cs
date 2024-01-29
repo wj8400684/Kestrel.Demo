@@ -15,21 +15,21 @@ using SuperSocket.Command;
 using SuperSocket.IOCPTcpChannelCreatorFactory;
 
 //
-var host = SuperSocketHostBuilder.Create<CommandMessage, CommandFilterPipeLine>()
-    .UsePackageEncoder<CommandEncoder>()
-    .UsePackageDecoder<CommandDecoder>()
-    .UseCommand(options => options.AddCommand<KestrelServer.SSServer.LoginCommand>())
-    .UseSessionFactory<KestrelServer.SSServer.TestSessionFactory>()
-    .UseIOCPTcpChannelCreatorFactory()
-    .UseInProcSessionContainer()
-    .ConfigureServices((_, service) =>
-    {
-        service.ConfigureOptions<ServerOptionsSetup>();
-        service.AddSingleton<IMessageFactoryPool, CommandMessageFactoryPool>();
-    })
-    .Build();
-
-await host.RunAsync();
+// var host = SuperSocketHostBuilder.Create<CommandMessage, CommandFilterPipeLine>()
+//     .UsePackageEncoder<CommandEncoder>()
+//     .UsePackageDecoder<CommandDecoder>()
+//     .UseCommand(options => options.AddCommand<KestrelServer.SSServer.LoginCommand>())
+//     .UseSessionFactory<KestrelServer.SSServer.TestSessionFactory>()
+//     .UseIOCPTcpChannelCreatorFactory()
+//     .UseInProcSessionContainer()
+//     .ConfigureServices((_, service) =>
+//     {
+//         service.ConfigureOptions<ServerOptionsSetup>();
+//         service.AddSingleton<IMessageFactoryPool, CommandMessageFactoryPool>();
+//     })
+//     .Build();
+//
+// await host.RunAsync();
 //
 //
 // var services = new ServiceCollection();
@@ -62,15 +62,15 @@ await host.RunAsync();
 
 var builder = WebApplication.CreateSlimBuilder(args);
 
-builder.Services.AddKestrelSocketServer<CommandMessage, FixedHeaderProtocol>()
-                .UseSession<AppSession>()
-                .UseClearIdleSession()
-                .UseInProcSessionContainer()
-                .ConfigServer(service =>
-                {
-                    service.AddLogging();
-                    service.AddSession();
-                });
+// builder.Services.AddKestrelSocketServer<CommandMessage, FixedHeaderPipelineFilter>()
+//                 .UseSession<AppSession>()
+//                 .UseClearIdleSession()
+//                 .UseInProcSessionContainer()
+//                 .ConfigServer(service =>
+//                 {
+//                     service.AddLogging();
+//                     service.AddSession();
+//                 });
 
 builder.Services.AddLogging();
 builder.Services.ConfigureOptions<KestrelServerOptionsSetup>();
