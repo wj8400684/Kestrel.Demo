@@ -1,19 +1,17 @@
 using Kestrel.Core.Messages;
-using SuperSocket;
 using SuperSocket.Command;
 
 namespace KestrelServer.SSServer;
 
 [Command(Key = (byte)CommandType.Login)]
-public sealed class LoginCommand : IAsyncCommand<LoginRequestMessage>
+public sealed class LoginCommand : RequestAsyncCommand<LoginRequestMessage, LoginReplyMessage>
 {
-    public ValueTask ExecuteAsync(IAppSession session, LoginRequestMessage package)
+    protected override ValueTask<LoginReplyMessage> ExecuteAsync(TestSession session, 
+        LoginRequestMessage request, 
+        CancellationToken cancellationToken)
     {
-        var s = (TestSession)session;
-        
-        return s.SendMessageAsync(new LoginReplyMessage
-        {
-            Identifier = package.Identifier,
-        });
+        var response = CreateRespMessage(request);
+
+        return new ValueTask<LoginReplyMessage>(response);
     }
 }

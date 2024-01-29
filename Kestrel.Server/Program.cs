@@ -12,22 +12,21 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using SuperSocket;
 using SuperSocket.Command;
 using SuperSocket.IOCPTcpChannelCreatorFactory;
-using SuperSocket.Udp;
-//
-// var host = SuperSocketHostBuilder.Create<CommandMessage, CommandFilterPipeLine>()
-//     .UseCommand(options => options.AddCommandAssembly(typeof(KestrelServer.SSServer.LoginCommand).Assembly))
-//     .UsePackageEncoder<CommandEncoder>()
-//     .UsePackageDecoder<CommandDecoder>()
-//     .UseSessionFactory<KestrelServer.SSServer.TestSessionFactory>()
-//     .UseIOCPTcpChannelCreatorFactory()
-//     .UseInProcSessionContainer()
-//     .ConfigureServices((_, service) =>
-//     {
-//         service.AddSingleton<IMessageFactoryPool, CommandMessageFactoryPool>();
-//     })
-//     .Build();
-//
-// await host.RunAsync();
+
+var host = SuperSocketHostBuilder.Create<CommandMessage, CommandFilterPipeLine>()
+    .UseCommand(options => options.AddCommandAssembly(typeof(KestrelServer.SSServer.LoginCommand).Assembly))
+    .UsePackageEncoder<CommandEncoder>()
+    .UsePackageDecoder<CommandDecoder>()
+    .UseSessionFactory<KestrelServer.SSServer.TestSessionFactory>()
+    .UseIOCPTcpChannelCreatorFactory()
+    .UseInProcSessionContainer()
+    .ConfigureServices((_, service) =>
+    {
+        service.AddSingleton<IMessageFactoryPool, CommandMessageFactoryPool>();
+    })
+    .Build();
+
+await host.RunAsync();
 //
 //
 // var services = new ServiceCollection();
