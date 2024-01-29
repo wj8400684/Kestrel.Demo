@@ -6,11 +6,6 @@ namespace KestrelServer.SSServer;
 [Command(Key = (byte)CommandType.Login)]
 public sealed class LoginCommand : RequestAsyncCommand<LoginRequestMessage, LoginReplyMessage>
 {
-    public LoginCommand(IMessageFactoryPool messageFactoryPool)
-    {
-        
-    }
-    
     protected override ValueTask<LoginReplyMessage> ExecuteAsync(
         TestSession session, 
         LoginRequestMessage request, 

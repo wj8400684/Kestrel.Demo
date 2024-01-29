@@ -14,9 +14,7 @@ public sealed class MessageAwaitable<TMessage>(ulong packetIdentifier, MessageDi
         cancellationToken.ThrowIfCancellationRequested();
 
         await using var register = cancellationToken.Register(() => Fail(new TimeoutException()));
-        var message = await _promise.Task.ConfigureAwait(false);
-        
-        return (TMessage)message;
+        return (TMessage)await _promise.Task.ConfigureAwait(false);
     }
 
     public void Complete(CommandMessage message)

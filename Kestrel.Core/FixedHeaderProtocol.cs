@@ -7,7 +7,7 @@ using SuperSocket.ProtoBase;
 
 namespace KestrelCore;
 
-public struct FixedHeaderPipelineFilter(IMessageFactoryPool messageFactoryPool) :
+public readonly struct FixedHeaderProtocol(IMessageFactoryPool messageFactoryPool) :
     IMessageReader<CommandMessage>,
     IMessageWriter<CommandMessage>
 {

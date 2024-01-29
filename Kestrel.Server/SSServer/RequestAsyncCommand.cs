@@ -3,10 +3,10 @@ using SuperSocket.Command;
 
 namespace KestrelServer.SSServer;
 
-public abstract class RequestAsyncCommand<TRequest> : IAsyncCommand<TestSession, TRequest>
+public abstract class RequestAsyncCommand<TRequest> : IAsyncCommand<TestSession, CommandMessage>
     where TRequest : CommandMessageWithIdentifier
 {
-    ValueTask IAsyncCommand<TestSession, TRequest>.ExecuteAsync(TestSession session, TRequest package)
+    ValueTask IAsyncCommand<TestSession, CommandMessage>.ExecuteAsync(TestSession session, CommandMessage package)
     {
         return SchedulerAsync(session, package, CancellationToken.None);
     }
@@ -30,11 +30,11 @@ public abstract class RequestAsyncCommand<TRequest> : IAsyncCommand<TestSession,
         CancellationToken cancellationToken);
 }
 
-public abstract class RequestAsyncCommand<TRequest, TResponse> : IAsyncCommand<TestSession, TRequest>
+public abstract class RequestAsyncCommand<TRequest, TResponse> : IAsyncCommand<TestSession, CommandMessage>
     where TRequest : CommandMessageWithIdentifier
     where TResponse : CommandRespMessageWithIdentifier, new()
 {
-    ValueTask IAsyncCommand<TestSession, TRequest>.ExecuteAsync(TestSession session, TRequest package)
+    ValueTask IAsyncCommand<TestSession, CommandMessage>.ExecuteAsync(TestSession session, CommandMessage package)
     {
         return SchedulerAsync(session, package, CancellationToken.None);
     }

@@ -7,21 +7,24 @@ using Kestrel.Core.Messages;
 using KestrelCore;
 using KestrelServer;
 using KestrelServer.Commands;
+using KestrelServer.Server;
 using Microsoft.AspNetCore.Connections;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using SuperSocket;
 using SuperSocket.Command;
 using SuperSocket.IOCPTcpChannelCreatorFactory;
 
+//
 var host = SuperSocketHostBuilder.Create<CommandMessage, CommandFilterPipeLine>()
     .UsePackageEncoder<CommandEncoder>()
     .UsePackageDecoder<CommandDecoder>()
     .UseCommand(options => options.AddCommand<KestrelServer.SSServer.LoginCommand>())
     .UseSessionFactory<KestrelServer.SSServer.TestSessionFactory>()
-    //.UseIOCPTcpChannelCreatorFactory()
+    .UseIOCPTcpChannelCreatorFactory()
     .UseInProcSessionContainer()
     .ConfigureServices((_, service) =>
     {
+        service.ConfigureOptions<ServerOptionsSetup>();
         service.AddSingleton<IMessageFactoryPool, CommandMessageFactoryPool>();
     })
     .Build();
@@ -58,6 +61,16 @@ await host.RunAsync();
 // await tcs.Task;
 
 var builder = WebApplication.CreateSlimBuilder(args);
+
+builder.Services.AddKestrelSocketServer<CommandMessage, FixedHeaderProtocol>()
+                .UseSession<AppSession>()
+                .UseClearIdleSession()
+                .UseInProcSessionContainer()
+                .ConfigServer(service =>
+                {
+                    service.AddLogging();
+                    service.AddSession();
+                });
 
 builder.Services.AddLogging();
 builder.Services.ConfigureOptions<KestrelServerOptionsSetup>();

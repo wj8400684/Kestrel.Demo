@@ -6,7 +6,7 @@ namespace Kestrel.Core;
 public sealed class MessageDispatcher : IDisposable
 {
     private bool _isDisposed;
-    private readonly ConcurrentDictionary<ulong, IMessageAwaitable> _waiters = new();
+    private readonly Dictionary<ulong, IMessageAwaitable> _waiters = new();
 
     public MessageAwaitable<TResponseMessage> AddAwaitable<TResponseMessage>(ulong messageIdentifier)
         where TResponseMessage : CommandMessage
@@ -73,7 +73,8 @@ public sealed class MessageDispatcher : IDisposable
 
     public void RemoveAwaitable(ulong identifier)
     {
-        _waiters.TryRemove(identifier, out _);
+        lock (_waiters)
+            _waiters.Remove(identifier, out _);
     }
 
     public bool TryDispatch(CommandRespMessageWithIdentifier message)
@@ -81,10 +82,15 @@ public sealed class MessageDispatcher : IDisposable
         ArgumentNullException.ThrowIfNull(message);
 
         ThrowIfDisposed();
-        
-        if (!_waiters.TryRemove(message.Identifier, out var awaitable))
-            return false;
-        
+
+        IMessageAwaitable? awaitable;
+
+        lock (_waiters)
+        {
+            if (!_waiters.Remove(message.Identifier, out awaitable))
+                return false;
+        }
+
         awaitable.Complete(message);
 
         return true;
