@@ -1,48 +1,87 @@
 using System.Net;
+using Bedrock.Framework.Protocols;
 using Kestrel.Core;
 using Kestrel.Core.Messages;
 using KestrelCore;
+using Microsoft.AspNetCore.Connections;
+using Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets;
+using Microsoft.Extensions.DependencyInjection;
 using SuperSocket.Client;
 using SuperSocket.IOCPEasyClient;
 
 namespace Kestrel.Client;
 
-public class MessageDispatchClient
+public class MessageDispatchClient2
 {
+    private readonly IServiceProvider _provider;
+    private readonly IConnectionFactory _connectionFactory;
     private readonly CommandEncoder _encoder = new();
-    private readonly IEasyClient<CommandMessage, CommandMessage> _client;
     private readonly MessageDispatcher _messageDispatcher = new();
     private readonly MessageIdentifierProvider _messageIdentifierProvider = new();
+    private readonly FixedHeaderPipelineFilter _pipelineFilter = new(new CommandMessageFactoryPool());
 
-    public MessageDispatchClient()
+    private ProtocolReader _reader;
+    private ProtocolWriter _writer;
+
+    public MessageDispatchClient2()
     {
-        _client = new EasyClient<CommandMessage, CommandMessage>(new CommandFilterPipeLine
-        {
-            Decoder = new CommandDecoder(new CommandMessageFactoryPool())
-        }, _encoder);
-        _client.Closed += OnClosed;
-        _client.PackageHandler += OnPackageHandler;
+        var service = new ServiceCollection();
+        service.AddLogging();
+        service.AddSocketConnectionFactory();
+        service.ConfigureOptions<SocketTransportOptionsSetup>();
+       
+        _provider = service.BuildServiceProvider();
+        _connectionFactory = _provider.GetRequiredService<IConnectionFactory>();
     }
 
     public async ValueTask<ValueStartResult> StartAsync()
     {
-        bool connected;
+        ConnectionContext connectionContext;
 
         try
         {
-            connected = await _client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, 8081));
+            connectionContext = await _connectionFactory.ConnectAsync(new IPEndPoint(IPAddress.Loopback, 8081));
         }
         catch (Exception e)
         {
             return ValueStartResult.SetError(e);
         }
 
-        if (!connected)
-            return ValueStartResult.SetResult(false);
+        _reader = connectionContext.CreateReader();
+        _writer = connectionContext.CreateWriter();
 
-        _client.StartReceive();
+        StartReceive(connectionContext);
 
         return ValueStartResult.SetResult(true);
+    }
+
+    private async void StartReceive(ConnectionContext connectionContext)
+    {
+        while (!connectionContext.ConnectionClosed.IsCancellationRequested)
+        {
+            try
+            {
+                var readResult = await _reader.ReadAsync(_pipelineFilter);
+
+                if (readResult.IsCanceled)
+                    break;
+
+                if (readResult.Message is not CommandRespMessageWithIdentifier respMessageWithIdentifier)
+                    continue;
+
+                await TryDispatchAsync(respMessageWithIdentifier);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            finally
+            {
+                _reader.Advance();
+            }
+        }
+
+        Console.WriteLine("断开连接");
     }
 
     private void OnClosed(object sender, EventArgs e)
@@ -108,7 +147,7 @@ public class MessageDispatchClient
 
         try
         {
-            await _client.SendAsync(request);
+            await _writer.WriteAsync(_pipelineFilter, request, CancellationToken.None);
         }
         catch (Exception e)
         {

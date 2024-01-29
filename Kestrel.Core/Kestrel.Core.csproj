@@ -10,17 +10,7 @@
         <PackageReference Include="Bedrock.Framework" Version="0.1.63-alpha.gf69fa1b135" />
         <PackageReference Include="MemoryPack" Version="1.10.0"/>
         <PackageReference Include="System.IO.Pipelines" Version="8.0.0"/>
-        <PackageReference Include="Google.Protobuf" Version="3.25.2"/>
         <PackageReference Include="SuperSocket" Version="2.0.0-beta.18.421" />
-        <PackageReference Include="Grpc.Tools" Version="2.60.0">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-    </ItemGroup>
-    <ItemGroup>
-        <Protobuf Include="Protos\commandMessage.proto">
-            <GrpcServices>Client</GrpcServices>
-        </Protobuf>
     </ItemGroup>
     <ItemGroup>
       <Folder Include="Dispatch\" />

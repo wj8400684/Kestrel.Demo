@@ -3,12 +3,13 @@ using System.Net;
 using Bedrock.Framework;
 using Bedrock.Framework.Protocols;
 using Kestrel.Client;
+using Kestrel.Core.Messages;
 using KestrelCore;
 using Microsoft.Extensions.Logging;
 using SuperSocket.Client;
 using SuperSocket.IOCPEasyClient;
 
-var client = new MessageDispatchClient();
+var client = new MessageDispatchClient2();
 
 var result = await client.StartAsync();
 
@@ -31,13 +32,11 @@ while (watch.Elapsed.TotalSeconds < 60)
 {
     sendCount++;
 
-    var requestMessage = CommandMessage.NewMessage(CommandType.Login, new LoginMessageRequest
+    var commandResponse = await client.GetResponseAsync<LoginReplyMessage>(new LoginRequestMessage
     {
         Username = "wujun",
-        Password = "ssss",
+        Password = "wuun57889"
     });
-
-    var commandResponse = await client.GetResponseAsync<LoginMessageReply>(requestMessage);
 
     //var content = commandResponse.DecodeMessage();
 

@@ -1,23 +1,19 @@
-using Google.Protobuf;
-using KestrelCore;
+using Kestrel.Core.Messages;
+using SuperSocket;
 using SuperSocket.Command;
 
 namespace KestrelServer.SSServer;
 
-[Command(Key = (int)CommandType.Login)]
-public sealed class LoginCommand : IAsyncCommand<TestSession,CommandMessage>
+[Command(Key = (byte)CommandType.Login)]
+public sealed class LoginCommand : IAsyncCommand<LoginRequestMessage>
 {
-    public async ValueTask ExecuteAsync(TestSession session, CommandMessage package)
+    public ValueTask ExecuteAsync(IAppSession session, LoginRequestMessage package)
     {
-        var request = LoginMessageRequest.Parser.ParseFrom(package.Content);
+        var s = (TestSession)session;
         
-        await session.SendMessageAsync(new CommandMessage
+        return s.SendMessageAsync(new LoginReplyMessage
         {
-            Key = CommandType.LoginReply,
-            Content = new LoginMessageReply
-            {
-                Token = "sssssss"
-            }.ToByteString()
+            Identifier = package.Identifier,
         });
     }
 }

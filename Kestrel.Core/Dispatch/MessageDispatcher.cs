@@ -1,16 +1,15 @@
 using System.Collections.Concurrent;
-using Google.Protobuf;
-using KestrelCore;
+using Kestrel.Core.Messages;
 
 namespace Kestrel.Core;
 
 public sealed class MessageDispatcher : IDisposable
 {
     private bool _isDisposed;
-    private readonly ConcurrentDictionary<uint, IMessageAwaitable> _waiters = new();
+    private readonly ConcurrentDictionary<ulong, IMessageAwaitable> _waiters = new();
 
-    public MessageAwaitable<TResponseMessage> AddAwaitable<TResponseMessage>(uint messageIdentifier)
-        where TResponseMessage : IMessage<TResponseMessage>
+    public MessageAwaitable<TResponseMessage> AddAwaitable<TResponseMessage>(ulong messageIdentifier)
+        where TResponseMessage : CommandMessage
     {
         var awaitable = new MessageAwaitable<TResponseMessage>(messageIdentifier, this);
 
@@ -72,18 +71,18 @@ public sealed class MessageDispatcher : IDisposable
         }
     }
 
-    public void RemoveAwaitable(uint identifier)
+    public void RemoveAwaitable(ulong identifier)
     {
         _waiters.TryRemove(identifier, out _);
     }
 
-    public bool TryDispatch(CommandMessage message)
+    public bool TryDispatch(CommandRespMessageWithIdentifier message)
     {
         ArgumentNullException.ThrowIfNull(message);
 
         ThrowIfDisposed();
         
-        if (!_waiters.Remove(message.Identifier, out var awaitable))
+        if (!_waiters.TryRemove(message.Identifier, out var awaitable))
             return false;
         
         awaitable.Complete(message);

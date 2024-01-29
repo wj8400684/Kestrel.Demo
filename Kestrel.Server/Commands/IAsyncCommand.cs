@@ -1,4 +1,4 @@
-using KestrelCore;
+using Kestrel.Core.Messages;
 using KestrelServer.Server;
 
 namespace KestrelServer.Commands;

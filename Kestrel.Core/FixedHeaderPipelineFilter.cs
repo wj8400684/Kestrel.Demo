@@ -1,46 +1,51 @@
 using System.Buffers;
 using System.Buffers.Binary;
 using Bedrock.Framework.Protocols;
-using Google.Protobuf;
+using Kestrel.Core.Extensions;
+using Kestrel.Core.Messages;
+using SuperSocket.ProtoBase;
 
 namespace KestrelCore;
 
-public struct FixedHeaderPipelineFilter :
+public struct FixedHeaderPipelineFilter(IMessageFactoryPool messageFactoryPool) :
     IMessageReader<CommandMessage>,
     IMessageWriter<CommandMessage>
 {
-    private const int HeaderSize = sizeof(int);
-
     public bool TryParseMessage(in ReadOnlySequence<byte> input,
         ref SequencePosition consumed,
         ref SequencePosition examined,
         out CommandMessage message)
     {
         message = default;
-        
+
         if (input.IsEmpty)
             return false;
-        
+
         var reader = new SequenceReader<byte>(input);
-        if (!reader.TryReadLittleEndian(out int bodyLength) || reader.Remaining < bodyLength)
+        if (!reader.TryReadLittleEndian(out short bodyLength) || reader.Remaining < bodyLength)
             return false;
 
-        var payLoad = reader.Sequence.Slice(HeaderSize, bodyLength);
+        reader.TryRead(out var command);
 
-        message = CommandMessage.Parser.ParseFrom(payLoad);
+        var packetFactory = messageFactoryPool.Get(command) ?? throw new ProtocolException($"????{command}?????");
 
-        examined = consumed = payLoad.End;
+        message = packetFactory.Create();
+
+        message.DecodeBody(ref reader, message);
+        
+        examined = consumed = input.Slice(bodyLength + CommandMessage.HeaderSize).End;
         return true;
     }
 
     public void WriteMessage(CommandMessage message, IBufferWriter<byte> output)
     {
-        var bodyLength = message.CalculateSize();
+        var headSpan = output.GetSpan(CommandMessage.HeaderSize);
+        output.Advance(CommandMessage.HeaderSize);
 
-        var headSpan = output.GetSpan(HeaderSize);
-        BinaryPrimitives.WriteInt32LittleEndian(headSpan, bodyLength);
-        output.Advance(HeaderSize);
-        
-        message.WriteTo(output);
+        var length = output.WriteLittleEndian((byte)message.Key);
+
+        length += message.Encode(output);
+
+        BinaryPrimitives.WriteInt16LittleEndian(headSpan, (short)length);
     }
 }

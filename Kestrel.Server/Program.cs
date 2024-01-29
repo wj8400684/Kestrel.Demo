@@ -2,8 +2,8 @@ using System.Net;
 using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
 using Bedrock.Framework;
-using Google.Protobuf;
 using Kestrel.Core;
+using Kestrel.Core.Messages;
 using KestrelCore;
 using KestrelServer;
 using KestrelServer.Commands;
@@ -13,12 +13,18 @@ using SuperSocket;
 using SuperSocket.Command;
 using SuperSocket.IOCPTcpChannelCreatorFactory;
 using SuperSocket.Udp;
-
+//
 // var host = SuperSocketHostBuilder.Create<CommandMessage, CommandFilterPipeLine>()
-//     .UseCommand(options => options.AddCommand<KestrelServer.SSServer.LoginCommand>())
+//     .UseCommand(options => options.AddCommandAssembly(typeof(KestrelServer.SSServer.LoginCommand).Assembly))
 //     .UsePackageEncoder<CommandEncoder>()
+//     .UsePackageDecoder<CommandDecoder>()
 //     .UseSessionFactory<KestrelServer.SSServer.TestSessionFactory>()
-//     //.UseIOCPTcpChannelCreatorFactory()
+//     .UseIOCPTcpChannelCreatorFactory()
+//     .UseInProcSessionContainer()
+//     .ConfigureServices((_, service) =>
+//     {
+//         service.AddSingleton<IMessageFactoryPool, CommandMessageFactoryPool>();
+//     })
 //     .Build();
 //
 // await host.RunAsync();
@@ -55,13 +61,10 @@ using SuperSocket.Udp;
 var builder = WebApplication.CreateSlimBuilder(args);
 
 builder.Services.AddLogging();
+builder.Services.ConfigureOptions<KestrelServerOptionsSetup>();
+builder.Services.AddSingleton<IMessageFactoryPool, CommandMessageFactoryPool>();
 builder.Services.AddSingleton<KestrelServer.ISessionContainer, InProcSessionContainer>();
 builder.Services.AddCommands<LoginCommand>();
-
-builder.WebHost.ConfigureKestrel(options =>
-{
-    options.ListenAnyIP(8081, l => l.UseConnectionHandler<CommandConnectionHandler>());
-});
 
 var app = builder.Build();
 

@@ -1,18 +1,21 @@
 using Bedrock.Framework.Protocols;
-using Google.Protobuf;
 using Kestrel.Core;
+using Kestrel.Core.Messages;
 using KestrelCore;
 using Microsoft.AspNetCore.Connections;
 using SuperSocket;
 
 namespace KestrelServer.Server;
 
-public sealed class AppChannel(ConnectionContext connection, ILogger logger)
+public sealed class AppChannel(
+    ConnectionContext connection, 
+    IMessageFactoryPool messageFactoryPool, 
+    ILogger logger)
     : IAsyncDisposable, ILogger, ILoggerAccessor
 {
     private readonly MessageDispatcher _messageDispatcher = new();
     private readonly MessageIdentifierProvider _messageIdentifierProvider = new();
-    private readonly FixedHeaderPipelineFilter _pipelineFilter = new();
+    private readonly FixedHeaderPipelineFilter _pipelineFilter = new(messageFactoryPool);
     private readonly ProtocolReader _reader = connection.CreateReader();
     private readonly ProtocolWriter _writer = connection.CreateWriter();
 
@@ -52,18 +55,18 @@ public sealed class AppChannel(ConnectionContext connection, ILogger logger)
     /// 获取响应包
     /// </summary>
     /// <typeparam name="TReplyMessage"></typeparam>
-    /// <param name="message"></param>
+    /// <param name="request"></param>
     /// <param name="responseTimeout"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    internal ValueTask<ValueCommandResponse<TReplyMessage>> GetResponsePacketAsync<TReplyMessage>(
-        CommandMessage message,
+    internal ValueTask<TReplyMessage> GetResponsePacketAsync<TReplyMessage>(
+        CommandMessageWithIdentifier request,
         TimeSpan responseTimeout,
         CancellationToken cancellationToken)
-        where TReplyMessage : IMessage<TReplyMessage>
+        where TReplyMessage : CommandRespMessageWithIdentifier
     {
         using var timeOut = new CancellationTokenSource(responseTimeout);
-        return GetResponsePacketAsync<TReplyMessage>(message, connection.ConnectionClosed, cancellationToken,
+        return GetResponsePacketAsync<TReplyMessage>(request, connection.ConnectionClosed, cancellationToken,
             timeOut.Token);
     }
 
@@ -71,44 +74,44 @@ public sealed class AppChannel(ConnectionContext connection, ILogger logger)
     /// 获取响应包
     /// </summary>
     /// <typeparam name="TReplyMessage"></typeparam>
-    /// <param name="message"></param>
+    /// <param name="request"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    internal ValueTask<ValueCommandResponse<TReplyMessage>> GetResponsePacketAsync<TReplyMessage>(
-        CommandMessage message,
+    internal ValueTask<TReplyMessage> GetResponsePacketAsync<TReplyMessage>(
+        CommandMessageWithIdentifier request,
         CancellationToken cancellationToken)
-        where TReplyMessage : IMessage<TReplyMessage>
+        where TReplyMessage : CommandRespMessageWithIdentifier
     {
-        return GetResponsePacketAsync<TReplyMessage>(message, connection.ConnectionClosed, cancellationToken);
+        return GetResponsePacketAsync<TReplyMessage>(request, connection.ConnectionClosed, cancellationToken);
     }
 
     /// <summary>
     /// 获取响应包
     /// </summary>
     /// <typeparam name="TReplyMessage"></typeparam>
-    /// <param name="message"></param>
+    /// <param name="request"></param>
     /// <param name="tokens"></param>
     /// <returns></returns>
-    internal async ValueTask<ValueCommandResponse<TReplyMessage>> GetResponsePacketAsync<TReplyMessage>(
-        CommandMessage message,
-        params CancellationToken[] tokens) where TReplyMessage : IMessage<TReplyMessage>
+    internal async ValueTask<TReplyMessage> GetResponsePacketAsync<TReplyMessage>(
+        CommandMessageWithIdentifier request,
+        params CancellationToken[] tokens) where TReplyMessage : CommandRespMessageWithIdentifier
     {
         using var tokenSource = CancellationTokenSource.CreateLinkedTokenSource(tokens);
 
-        message.Identifier = _messageIdentifierProvider.GetNextIdentifier();
+        request.Identifier = _messageIdentifierProvider.GetNextIdentifier();
 
-        using var messageAwaitable = _messageDispatcher.AddAwaitable<TReplyMessage>(message.Identifier);
+        using var messageAwaitable = _messageDispatcher.AddAwaitable<TReplyMessage>(request.Identifier);
 
         try
         {
             //发送转发封包
-            await WriterAsync(message, tokenSource.Token);
+            await WriterAsync(request, tokenSource.Token);
         }
         catch (Exception e)
         {
             messageAwaitable.Fail(e);
             this.LogError(e,
-                $"[{RemoteEndPoint}]: commandKey= {message.Key};Identifier= {message.Identifier} WaitAsync 发送封包抛出一个异常");
+                $"[{RemoteEndPoint}]: commandKey= {request.Key};Identifier= {request.Identifier} WaitAsync 发送封包抛出一个异常");
         }
 
         try
@@ -120,7 +123,7 @@ public sealed class AppChannel(ConnectionContext connection, ILogger logger)
         {
             if (e is TimeoutException)
                 this.LogError(
-                    $"[{RemoteEndPoint}]: commandKey= {message.Key};Identifier= {message.Identifier} WaitAsync Timeout");
+                    $"[{RemoteEndPoint}]: commandKey= {request.Key};Identifier= {request.Identifier} WaitAsync Timeout");
 
             throw;
         }
@@ -129,17 +132,17 @@ public sealed class AppChannel(ConnectionContext connection, ILogger logger)
     /// <summary>
     /// 
     /// </summary>
-    /// <param name="message"></param>
+    /// <param name="response"></param>
     /// <returns></returns>
-    internal ValueTask<bool> DispatchAsync(CommandMessage message)
+    internal ValueTask<bool> DispatchAsync(CommandRespMessageWithIdentifier response)
     {
-        var result = _messageDispatcher.TryDispatch(message);
+        var result = _messageDispatcher.TryDispatch(response);
 
         return ValueTask.FromResult(result);
     }
-    
+
     #endregion
-    
+
     public async ValueTask DisposeAsync()
     {
         await _reader.DisposeAsync();

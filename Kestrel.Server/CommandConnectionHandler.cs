@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using Kestrel.Core;
+using Kestrel.Core.Messages;
 using KestrelServer.Middlewares;
 using KestrelServer.Server;
 using Microsoft.AspNetCore.Connections;
@@ -62,7 +63,8 @@ public sealed class InProcSessionContainer : ISessionContainer
 
 public sealed class CommandConnectionHandler(
     ILogger<CommandConnectionHandler> logger,
-    IServiceProvider appServices) : ConnectionHandler
+    IServiceProvider appServices,
+    IMessageFactoryPool messageFactoryPool) : ConnectionHandler
 {
     private readonly ISessionContainer _sessionContainer = appServices.GetRequiredService<ISessionContainer>();
 
@@ -74,7 +76,7 @@ public sealed class CommandConnectionHandler(
 
     public override async Task OnConnectedAsync(ConnectionContext connection)
     {
-        await using var channel = new AppChannel(connection, logger);
+        await using var channel = new AppChannel(connection, messageFactoryPool, logger);
 
         await _sessionContainer.RegisterSessionAsync(channel);
 
