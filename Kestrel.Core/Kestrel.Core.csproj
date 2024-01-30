@@ -12,5 +12,9 @@
         <PackageReference Include="System.IO.Pipelines" Version="8.0.0"/>
         <PackageReference Include="SuperSocket" Version="2.0.0-beta.19.424" />
     </ItemGroup>
+
+    <ItemGroup>
+      <Compile Remove="Dispatch\ValueMessageAwaitablePool.cs" />
+    </ItemGroup>
     
 </Project>
