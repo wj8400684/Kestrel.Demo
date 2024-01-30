@@ -32,11 +32,11 @@ services.TryAddEnumerable(ServiceDescriptor.Singleton<IAsyncCommand, LoginComman
 
 var serviceProvider = services.BuildServiceProvider();
 
-var server = new ServerBuilder(serviceProvider)
-    .ListenNamedPipe(new Bedrock.Framework.NamedPipeEndPoint("ss"),
-        s => { s.UseConnectionHandler<CommandConnectionHandler>(); }
-    )
-    .Build();
+// var server = new ServerBuilder(serviceProvider)
+//     .ListenNamedPipe(new Bedrock.Framework.NamedPipeEndPoint("ss"),
+//         s => { s.UseConnectionHandler<CommandConnectionHandler>(); }
+//     )
+//     .Build();
 
 var server = new ServerBuilder(serviceProvider)
     .UseSockets(l => { l.ListenAnyIP(8081, c => c.UseConnectionHandler<CommandConnectionHandler>()); })
