@@ -8,10 +8,10 @@ public sealed class MessageDispatcher : IDisposable
     private bool _isDisposed;
     private readonly Dictionary<ulong, IMessageAwaitable> _waiters = new();
 
-    public MessageAwaitable<TResponseMessage> AddAwaitable<TResponseMessage>(ulong messageIdentifier)
+    public ValueMessageAwaitable<TResponseMessage> AddAwaitable<TResponseMessage>(ulong messageIdentifier)
         where TResponseMessage : CommandMessage
     {
-        var awaitable = new MessageAwaitable<TResponseMessage>(messageIdentifier, this);
+        var awaitable = new ValueMessageAwaitable<TResponseMessage>(messageIdentifier, this);
 
         _waiters.TryAdd(messageIdentifier, awaitable);
 
