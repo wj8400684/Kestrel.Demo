@@ -4,21 +4,18 @@ using Kestrel.Core.Messages;
 namespace Kestrel.Core;
 
 public struct ValueMessageAwaitable<TMessage>(ulong packetIdentifier, MessageDispatcher owningMessageDispatcher)
-    : IMessageAwaitable<TMessage>, IValueTaskSource<TMessage>
+    : IMessageAwaitable<TMessage>, IValueTaskSource<CommandMessage>
     where TMessage : CommandMessage
 {
-    private ManualResetValueTaskSourceCore<TMessage> _taskSourceCore =
-        new()
-        {
-            RunContinuationsAsynchronously = true
-        };
+    private ManualResetValueTaskSourceCore<CommandMessage> _taskSourceCore =
+        new();
 
-    public ValueTask<TMessage> WaitAsync(CancellationToken cancellationToken)
+    public async ValueTask<TMessage> WaitAsync(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
         //await using var register = cancellationToken.Register(() => Fail(new TimeoutException()));
-        return new ValueTask<TMessage>(this, _taskSourceCore.Version);
+        return (TMessage)await new ValueTask<CommandMessage>(this, _taskSourceCore.Version);
     }
 
     public void Complete(CommandMessage message)
@@ -41,17 +38,17 @@ public struct ValueMessageAwaitable<TMessage>(ulong packetIdentifier, MessageDis
         owningMessageDispatcher.RemoveAwaitable(packetIdentifier);
     }
 
-    TMessage IValueTaskSource<TMessage>.GetResult(short token)
+    CommandMessage IValueTaskSource<CommandMessage>.GetResult(short token)
     {
         return _taskSourceCore.GetResult(token);
     }
 
-    ValueTaskSourceStatus IValueTaskSource<TMessage>.GetStatus(short token)
+    ValueTaskSourceStatus IValueTaskSource<CommandMessage>.GetStatus(short token)
     {
         return _taskSourceCore.GetStatus(token);
     }
 
-    void IValueTaskSource<TMessage>.OnCompleted(Action<object?> continuation, object? state, short token,
+    void IValueTaskSource<CommandMessage>.OnCompleted(Action<object?> continuation, object? state, short token,
         ValueTaskSourceOnCompletedFlags flags)
     {
         _taskSourceCore.OnCompleted(continuation, state, token, flags);
