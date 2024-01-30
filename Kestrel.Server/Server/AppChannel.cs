@@ -3,7 +3,6 @@ using Kestrel.Core;
 using Kestrel.Core.Messages;
 using KestrelCore;
 using Microsoft.AspNetCore.Connections;
-using SuperSocket;
 
 namespace KestrelServer.Server;
 
@@ -11,7 +10,7 @@ public sealed class AppChannel(
     ConnectionContext connection, 
     IMessageFactoryPool messageFactoryPool, 
     ILogger logger)
-    : IAsyncDisposable, ILogger, ILoggerAccessor
+    : IAsyncDisposable, ILogger
 {
     private readonly MessageDispatcher _messageDispatcher = new();
     private readonly MessageIdentifierProvider _messageIdentifierProvider = new();

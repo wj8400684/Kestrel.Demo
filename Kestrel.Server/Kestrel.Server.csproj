@@ -8,9 +8,6 @@
         <AssemblyName>KestrelServer</AssemblyName>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="SuperSocket.IOCPTcpChannelCreatorFactory" Version="2.0.0-beta.18.200" />
-    </ItemGroup>
-    <ItemGroup>
       <ProjectReference Include="..\Kestrel.Core\Kestrel.Core.csproj" />
     </ItemGroup>
     <ItemGroup>
