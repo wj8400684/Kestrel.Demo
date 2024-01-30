@@ -22,6 +22,12 @@ public sealed class ValueMessageAwaitable<TMessage>(ulong packetIdentifier, Mess
         _taskSourceCore.SetResult(message);
     }
 
+    public void Rest(ulong id = 0)
+    {
+        packetIdentifier = id;
+        _taskSourceCore.Reset();
+    }
+
     public void Complete(CommandMessage message)
     {
         _taskSourceCore.SetResult((TMessage)message);

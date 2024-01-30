@@ -10,6 +10,8 @@ public interface IMessageAwaitable<TMessage> : IMessageAwaitable
 
 public interface IMessageAwaitable : IDisposable
 {
+    void Rest(ulong id = 0);
+    
     void Complete(CommandMessage message);
 
     void Fail(Exception exception);

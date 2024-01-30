@@ -73,8 +73,13 @@ public sealed class MessageDispatcher : IDisposable
 
     public void RemoveAwaitable(ulong identifier)
     {
+        IMessageAwaitable? messageAwaitable;
+
         lock (_waiters)
-            _waiters.Remove(identifier, out _);
+        {
+            if (!_waiters.Remove(identifier, out messageAwaitable))
+                return;
+        }
     }
 
     public bool TryDispatch(CommandRespMessageWithIdentifier message)
