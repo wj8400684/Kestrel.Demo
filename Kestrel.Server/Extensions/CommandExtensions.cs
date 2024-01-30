@@ -21,7 +21,7 @@ public static class CommandExtensions
         var serviceType = typeof(IAsyncCommand);
         var cmdHandlerTypes = serviceType.Assembly.GetTypes()
             .Where(item => serviceType.IsAssignableFrom(item))
-            .Where(item => item.IsClass && item.IsAbstract == false);
+            .Where(item => item is { IsClass: true, IsAbstract: false });
 
         foreach (var cmd in cmdHandlerTypes)
             serviceCollection.TryAddEnumerable(ServiceDescriptor.Singleton(serviceType, cmd));

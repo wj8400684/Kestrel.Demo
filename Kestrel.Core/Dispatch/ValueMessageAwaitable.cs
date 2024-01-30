@@ -7,14 +7,17 @@ public sealed class ValueMessageAwaitable<TMessage>(ulong packetIdentifier, Mess
     : IMessageAwaitable<TMessage>, IValueTaskSource<TMessage>
     where TMessage : CommandMessage
 {
-    private ManualResetValueTaskSourceCore<TMessage> _taskSourceCore;
+    private ManualResetValueTaskSourceCore<TMessage> _taskSourceCore = new()
+    {
+        RunContinuationsAsynchronously = true
+    };
 
-    public ValueTask<TMessage> WaitAsync(CancellationToken cancellationToken)
+    public async ValueTask<TMessage> WaitAsync(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        //await using var register = cancellationToken.Register(() => Fail(new TimeoutException()));
-        return new ValueTask<TMessage>(this, _taskSourceCore.Version);
+        await using var register = cancellationToken.Register(() => Fail(new TimeoutException()));
+        return await new ValueTask<TMessage>(this, _taskSourceCore.Version);
     }
 
     public void Complete(TMessage message)
@@ -43,6 +46,8 @@ public sealed class ValueMessageAwaitable<TMessage>(ulong packetIdentifier, Mess
         _taskSourceCore.SetException(new TaskCanceledException());
     }
 
+    #region interface
+
     void IDisposable.Dispose()
     {
         owningMessageDispatcher.RemoveAwaitable(packetIdentifier);
@@ -63,4 +68,6 @@ public sealed class ValueMessageAwaitable<TMessage>(ulong packetIdentifier, Mess
     {
         _taskSourceCore.OnCompleted(continuation, state, token, flags);
     }
+
+    #endregion
 }
