@@ -4,10 +4,7 @@ using Kestrel.Core;
 using Kestrel.Core.Messages;
 using KestrelCore;
 using Microsoft.AspNetCore.Connections;
-using Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets;
 using Microsoft.Extensions.DependencyInjection;
-using SuperSocket.Client;
-using SuperSocket.IOCPEasyClient;
 
 namespace Kestrel.Client;
 
@@ -15,10 +12,9 @@ public class MessageDispatchClient2
 {
     private readonly IServiceProvider _provider;
     private readonly IConnectionFactory _connectionFactory;
-    private readonly CommandEncoder _encoder = new();
     private readonly MessageDispatcher _messageDispatcher = new();
     private readonly MessageIdentifierProvider _messageIdentifierProvider = new();
-    private readonly FixedHeaderPipelineFilter _pipelineFilter = new(new CommandMessageFactoryPool());
+    private readonly FixedHeaderProtocol _pipelineProtocol = new(new CommandMessageFactoryPool());
 
     private ProtocolReader _reader;
     private ProtocolWriter _writer;
@@ -61,7 +57,7 @@ public class MessageDispatchClient2
         {
             try
             {
-                var readResult = await _reader.ReadAsync(_pipelineFilter);
+                var readResult = await _reader.ReadAsync(_pipelineProtocol);
 
                 if (readResult.IsCanceled)
                     break;
@@ -82,19 +78,6 @@ public class MessageDispatchClient2
         }
 
         Console.WriteLine("断开连接");
-    }
-
-    private void OnClosed(object sender, EventArgs e)
-    {
-        Console.WriteLine("断开连接");
-    }
-
-    private async ValueTask OnPackageHandler(EasyClient<CommandMessage> sender, CommandMessage package)
-    {
-        if (package is not CommandRespMessageWithIdentifier respMessageWithIdentifier)
-            return;
-
-        await TryDispatchAsync(respMessageWithIdentifier);
     }
 
     /// <summary>
@@ -147,7 +130,7 @@ public class MessageDispatchClient2
 
         try
         {
-            await _writer.WriteAsync(_pipelineFilter, request, CancellationToken.None);
+            await _writer.WriteAsync(_pipelineProtocol, request, CancellationToken.None);
         }
         catch (Exception e)
         {

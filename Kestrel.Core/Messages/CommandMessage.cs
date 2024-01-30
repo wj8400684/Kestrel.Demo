@@ -1,10 +1,9 @@
 using System.Buffers;
 using MemoryPack;
-using SuperSocket.ProtoBase;
 
 namespace Kestrel.Core.Messages;
 
-public abstract partial class CommandMessage : IKeyedPackageInfo<CommandType>
+public abstract partial class CommandMessage 
 {
     public const byte HeaderSize = sizeof(short);
     

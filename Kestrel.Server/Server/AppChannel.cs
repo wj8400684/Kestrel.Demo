@@ -15,7 +15,7 @@ public sealed class AppChannel(
 {
     private readonly MessageDispatcher _messageDispatcher = new();
     private readonly MessageIdentifierProvider _messageIdentifierProvider = new();
-    private readonly FixedHeaderPipelineFilter _pipelineFilter = new(messageFactoryPool);
+    private readonly FixedHeaderProtocol _protocol = new(messageFactoryPool);
     private readonly ProtocolReader _reader = connection.CreateReader();
     private readonly ProtocolWriter _writer = connection.CreateWriter();
 
@@ -33,7 +33,7 @@ public sealed class AppChannel(
 
         try
         {
-            result = await _reader.ReadAsync(_pipelineFilter, cancellationToken);
+            result = await _reader.ReadAsync(_protocol, cancellationToken);
         }
         finally
         {
@@ -46,7 +46,7 @@ public sealed class AppChannel(
     public ValueTask WriterAsync(CommandMessage message,
         CancellationToken cancellationToken = default)
     {
-        return _writer.WriteAsync(_pipelineFilter, message, cancellationToken);
+        return _writer.WriteAsync(_protocol, message, cancellationToken);
     }
 
     #region dispatch

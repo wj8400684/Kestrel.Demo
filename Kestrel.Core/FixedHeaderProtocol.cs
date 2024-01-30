@@ -3,11 +3,10 @@ using System.Buffers.Binary;
 using Bedrock.Framework.Protocols;
 using Kestrel.Core.Extensions;
 using Kestrel.Core.Messages;
-using SuperSocket.ProtoBase;
 
 namespace KestrelCore;
 
-public readonly struct FixedHeaderPipelineFilter(IMessageFactoryPool messageFactoryPool) :
+public readonly struct FixedHeaderProtocol(IMessageFactoryPool messageFactoryPool) :
     IMessageReader<CommandMessage>,
     IMessageWriter<CommandMessage>
 {
@@ -27,7 +26,7 @@ public readonly struct FixedHeaderPipelineFilter(IMessageFactoryPool messageFact
 
         reader.TryRead(out var command);
 
-        var packetFactory = messageFactoryPool.Get(command) ?? throw new ProtocolException($"????{command}?????");
+        var packetFactory = messageFactoryPool.Get(command) ?? throw new Exception($"????{command}?????");
 
         message = packetFactory.Create();
 
