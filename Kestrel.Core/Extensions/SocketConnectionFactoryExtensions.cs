@@ -1,14 +1,13 @@
 using System.Diagnostics.CodeAnalysis;
-using System.Net;
 using Microsoft.AspNetCore.Connections;
 using Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Kestrel.Client;
+namespace Kestrel.Core;
 
-public static class HubBuilderExtensions
+public static class SocketConnectionFactoryExtensions
 {
-    private const string socketConnectionFactoryTypeName = "Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketConnectionFactory";
+    private const string SocketConnectionFactoryTypeName = "Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketConnectionFactory";
 
     /// <summary>
     /// 查找SocketConnectionFactory的类型
@@ -18,8 +17,8 @@ public static class HubBuilderExtensions
     public static Type FindSocketConnectionFactory()
     {
         var assembly = typeof(SocketTransportOptions).Assembly;
-        var connectionFactoryType = assembly.GetType(socketConnectionFactoryTypeName);
-        return connectionFactoryType ?? throw new NotSupportedException($"找不到类型{socketConnectionFactoryTypeName}");
+        var connectionFactoryType = assembly.GetType(SocketConnectionFactoryTypeName);
+        return connectionFactoryType ?? throw new NotSupportedException($"找不到类型{SocketConnectionFactoryTypeName}");
     }
     
     /// <summary>

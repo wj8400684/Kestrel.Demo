@@ -1,6 +1,7 @@
 using System.Net;
 using Bedrock.Framework.Protocols;
 using Kestrel.Core;
+using Kestrel.Core.Extensions;
 using Kestrel.Core.Messages;
 using KestrelCore;
 using Microsoft.AspNetCore.Connections;
@@ -24,7 +25,6 @@ public class MessageDispatchClient2
         var service = new ServiceCollection();
         service.AddLogging();
         service.AddSocketConnectionFactory();
-        service.ConfigureOptions<SocketTransportOptionsSetup>();
        
         _provider = service.BuildServiceProvider();
         _connectionFactory = _provider.GetRequiredService<IConnectionFactory>();

@@ -3,19 +3,23 @@ using Kestrel.Core.Messages;
 
 namespace Kestrel.Core;
 
-public struct ValueMessageAwaitable<TMessage>(ulong packetIdentifier, MessageDispatcher owningMessageDispatcher)
-    : IMessageAwaitable<TMessage>, IValueTaskSource<CommandMessage>
+public sealed class ValueMessageAwaitable<TMessage>(ulong packetIdentifier, MessageDispatcher owningMessageDispatcher)
+    : IMessageAwaitable<TMessage>, IValueTaskSource<TMessage>
     where TMessage : CommandMessage
 {
-    private ManualResetValueTaskSourceCore<CommandMessage> _taskSourceCore =
-        new();
+    private ManualResetValueTaskSourceCore<TMessage> _taskSourceCore;
 
-    public async ValueTask<TMessage> WaitAsync(CancellationToken cancellationToken)
+    public ValueTask<TMessage> WaitAsync(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
         //await using var register = cancellationToken.Register(() => Fail(new TimeoutException()));
-        return (TMessage)await new ValueTask<CommandMessage>(this, _taskSourceCore.Version);
+        return new ValueTask<TMessage>(this, _taskSourceCore.Version);
+    }
+
+    public void Complete(TMessage message)
+    {
+        _taskSourceCore.SetResult(message);
     }
 
     public void Complete(CommandMessage message)
@@ -38,17 +42,17 @@ public struct ValueMessageAwaitable<TMessage>(ulong packetIdentifier, MessageDis
         owningMessageDispatcher.RemoveAwaitable(packetIdentifier);
     }
 
-    CommandMessage IValueTaskSource<CommandMessage>.GetResult(short token)
+    TMessage IValueTaskSource<TMessage>.GetResult(short token)
     {
         return _taskSourceCore.GetResult(token);
     }
 
-    ValueTaskSourceStatus IValueTaskSource<CommandMessage>.GetStatus(short token)
+    ValueTaskSourceStatus IValueTaskSource<TMessage>.GetStatus(short token)
     {
         return _taskSourceCore.GetStatus(token);
     }
 
-    void IValueTaskSource<CommandMessage>.OnCompleted(Action<object?> continuation, object? state, short token,
+    void IValueTaskSource<TMessage>.OnCompleted(Action<object?> continuation, object? state, short token,
         ValueTaskSourceOnCompletedFlags flags)
     {
         _taskSourceCore.OnCompleted(continuation, state, token, flags);

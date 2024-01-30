@@ -30,9 +30,6 @@ while (watch.Elapsed.TotalSeconds < 60)
         Username = "wujun",
         Password = "wuun57889"
     });
-
-    //var content = commandResponse.DecodeMessage();
-
 }
 
 watch.Stop();
