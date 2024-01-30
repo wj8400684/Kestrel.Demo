@@ -1,9 +1,8 @@
 using Google.Protobuf;
-using SuperSocket.ProtoBase;
 
 namespace KestrelCore;
 
-public sealed partial class CommandMessage : IKeyedPackageInfo<CommandType>
+public sealed partial class CommandMessage 
 {
     public const int HeaderSize = sizeof(int);
     

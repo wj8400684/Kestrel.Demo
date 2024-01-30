@@ -3,12 +3,11 @@ using Google.Protobuf;
 using Kestrel.Core;
 using KestrelCore;
 using Microsoft.AspNetCore.Connections;
-using SuperSocket;
 
 namespace KestrelServer.Server;
 
 public sealed class AppChannel(ConnectionContext connection, ILogger logger)
-    : IAsyncDisposable, ILogger, ILoggerAccessor
+    : IAsyncDisposable, ILogger
 {
     private readonly MessageDispatcher _messageDispatcher = new();
     private readonly MessageIdentifierProvider _messageIdentifierProvider = new();

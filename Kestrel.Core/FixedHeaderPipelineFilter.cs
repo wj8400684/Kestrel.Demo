@@ -1,5 +1,6 @@
 using System.Buffers;
 using System.Buffers.Binary;
+using System.Text;
 using Bedrock.Framework.Protocols;
 using Google.Protobuf;
 
@@ -20,6 +21,8 @@ public struct FixedHeaderPipelineFilter :
         
         if (input.IsEmpty)
             return false;
+
+        var s = Encoding.UTF8.GetString(input);
         
         var reader = new SequenceReader<byte>(input);
         if (!reader.TryReadLittleEndian(out int bodyLength) || reader.Remaining < bodyLength)
