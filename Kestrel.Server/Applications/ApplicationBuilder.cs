@@ -112,7 +112,8 @@ public class ApplicationBuilder<TContext>
     /// <typeparam name="TMiddleware"></typeparam>
     /// <returns></returns>
     public ApplicationBuilder<TContext> Use<
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TMiddleware>()
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
+        TMiddleware>()
         where TMiddleware : IApplicationMiddleware<TContext>
     {
         var middleware = ActivatorUtilities.GetServiceOrCreateInstance<TMiddleware>(ApplicationServices);

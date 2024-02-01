@@ -1,9 +1,5 @@
-using System.Collections.Concurrent;
-using Kestrel.Core;
 using KestrelCore;
-using KestrelServer.Commands;
 using KestrelServer.Middlewares;
-using KestrelServer.Server;
 using Microsoft.AspNetCore.Connections;
 using SuperSocket.Channel;
 using SuperSocket.Channel.Kestrel;
@@ -11,7 +7,7 @@ using SuperSocket.Channel.Kestrel;
 namespace KestrelServer;
 
 public sealed class KestrelChannelConnectionHandler(
-    ILogger<CommandConnectionHandler> logger,
+    ILogger<KestrelChannelConnectionHandler> logger,
     IServiceProvider appServices) : ConnectionHandler
 {
     private readonly ApplicationDelegate<KestrelCommandContext> _application =

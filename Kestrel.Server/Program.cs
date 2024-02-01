@@ -73,9 +73,6 @@ var serviceProvider = services.BuildServiceProvider();
 
 var builder = WebApplication.CreateSlimBuilder(args);
 
-
-builder.WebHost.UseQuic();
-
 builder.Services.AddLogging();
 builder.Services.AddSingleton<KestrelServer.ISessionContainer, InProcSessionContainer>();
 builder.Services.AddCommands<LoginCommand>();
@@ -83,7 +80,7 @@ builder.Services.AddKestrelCommands<KestrelLoginCommand>();
 
 builder.WebHost.ConfigureKestrel(options =>
 {
-    options.ListenAnyIP(8081, l => l.UseConnectionHandler<CommandConnectionHandler>());
+    options.ListenAnyIP(8081, l => l.UseConnectionHandler<KestrelChannelConnectionHandler>());
 });
 
 var app = builder.Build();
