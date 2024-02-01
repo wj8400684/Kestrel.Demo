@@ -25,5 +25,8 @@
     <ItemGroup>
       <Folder Include="Dispatch\" />
     </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\SuperSocket.Channel.Kestrel\SuperSocket.Channel.Kestrel.csproj" />
+    </ItemGroup>
     
 </Project>

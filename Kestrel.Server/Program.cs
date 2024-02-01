@@ -57,6 +57,7 @@ var builder = WebApplication.CreateSlimBuilder(args);
 builder.Services.AddLogging();
 builder.Services.AddSingleton<KestrelServer.ISessionContainer, InProcSessionContainer>();
 builder.Services.AddCommands<LoginCommand>();
+builder.Services.AddKestrelCommands<KestrelLoginCommand>();
 
 builder.WebHost.ConfigureKestrel(options =>
 {

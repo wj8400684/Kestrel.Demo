@@ -6,6 +6,16 @@ namespace KestrelServer;
 
 public static class CommandExtensions
 {
+    public static IServiceCollection AddKestrelCommands<
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TCommand>(
+        this IServiceCollection serviceCollection)
+        where TCommand : class, IKestrelAsyncCommand
+    {
+        serviceCollection.TryAddEnumerable(ServiceDescriptor.Singleton<IKestrelAsyncCommand, TCommand>());
+
+        return serviceCollection;
+    }
+    
     public static IServiceCollection AddCommands<
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TCommand>(
         this IServiceCollection serviceCollection)

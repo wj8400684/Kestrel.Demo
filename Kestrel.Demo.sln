@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kestrel.Client", "Kestrel.C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kestrel.Core", "Kestrel.Core\Kestrel.Core.csproj", "{CEDBBF19-00AE-49E3-8412-027D7CC5809E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Channel.Kestrel", "SuperSocket.Channel.Kestrel\SuperSocket.Channel.Kestrel.csproj", "{160389B1-C437-4E8B-85E6-4CD80C23BBC7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{CEDBBF19-00AE-49E3-8412-027D7CC5809E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CEDBBF19-00AE-49E3-8412-027D7CC5809E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CEDBBF19-00AE-49E3-8412-027D7CC5809E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{160389B1-C437-4E8B-85E6-4CD80C23BBC7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{160389B1-C437-4E8B-85E6-4CD80C23BBC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{160389B1-C437-4E8B-85E6-4CD80C23BBC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{160389B1-C437-4E8B-85E6-4CD80C23BBC7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
