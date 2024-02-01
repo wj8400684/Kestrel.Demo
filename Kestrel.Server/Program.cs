@@ -8,6 +8,7 @@ using KestrelCore;
 using KestrelServer;
 using KestrelServer.Commands;
 using Microsoft.AspNetCore.Connections;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using SuperSocket;
 using SuperSocket.Command;
@@ -61,7 +62,11 @@ builder.Services.AddKestrelCommands<KestrelLoginCommand>();
 
 builder.WebHost.ConfigureKestrel(options =>
 {
-    options.ListenAnyIP(8081, l => l.UseConnectionHandler<CommandConnectionHandler>());
+    options.ListenAnyIP(8081, l =>
+    {
+        l.Protocols = HttpProtocols.Http3;
+        l.UseConnectionHandler<CommandConnectionHandler>();
+    });
 });
 
 var app = builder.Build();
