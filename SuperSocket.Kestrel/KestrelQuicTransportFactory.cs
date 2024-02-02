@@ -34,12 +34,11 @@ internal sealed class KestrelQuicTransportFactory(
 
             collection.Set(new TlsConnectionCallbackOptions
             {
-                ApplicationProtocols = new List<SslApplicationProtocol>()
-                {
-                    SslApplicationProtocol.Http3,
-                }
+                ApplicationProtocols =
+                [
+                    SslApplicationProtocol.Http3
+                ]
             });
-
 
             var listenEndpoint = Options.GetListenEndPoint();
 
