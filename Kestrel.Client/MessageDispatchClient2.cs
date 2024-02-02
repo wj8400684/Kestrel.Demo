@@ -85,8 +85,8 @@ public class MessageDispatchClient2
         
         try
         {
-            //connectionContext = await _connectionFactory.ConnectAsync(new Bedrock.Framework.NamedPipeEndPoint("ss"));
-            connectionContext = await _connectionFactory.ConnectAsync(new IPEndPoint(IPAddress.Parse("159.75.132.21"), 8081));
+            //connectionContext = await _connectionFactory.ConnectAsync(new Bedrock.Framework.NamedPipeEndPoint("ss"));Parse("159.75.132.21")
+            connectionContext = await _connectionFactory.ConnectAsync(new IPEndPoint(IPAddress.Loopback, 8081));
         }
         catch (Exception e)
         {

@@ -6,4 +6,4 @@ namespace KestrelServer;
 /// <typeparam name="TContext">中间件上下文类型</typeparam>
 /// <param name="context">中间件上下文</param>
 /// <returns></returns>
-public delegate ValueTask ApplicationDelegate<TContext>(TContext context);
+public delegate ValueTask ApplicationDelegate<in TContext>(TContext context);
