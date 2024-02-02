@@ -13,6 +13,7 @@
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\Kestrel.Core\Kestrel.Core.csproj" />
+      <ProjectReference Include="..\SuperSocket.Kestrel\SuperSocket.Kestrel.csproj" />
     </ItemGroup>
     <ItemGroup>
         <RdXmlFile Include="rd.xml" />

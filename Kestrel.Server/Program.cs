@@ -15,16 +15,17 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using SuperSocket;
 using SuperSocket.Command;
 using SuperSocket.IOCPTcpChannelCreatorFactory;
+using SuperSocket.Kestrel;
 using SuperSocket.Udp;
 
-// var host = SuperSocketHostBuilder.Create<CommandMessage, CommandFilterPipeLine>()
-//     .UseCommand(options => options.AddCommand<KestrelServer.SSServer.LoginCommand>())
-//     .UsePackageEncoder<CommandEncoder>()
-//     .UseSessionFactory<KestrelServer.SSServer.TestSessionFactory>()
-//     .UseIOCPTcpChannelCreatorFactory()
-//     .Build();
-//
-// await host.RunAsync();
+var host = SuperSocketHostBuilder.Create<CommandMessage, CommandFilterPipeLine>()
+    .UseCommand(options => options.AddCommand<KestrelServer.SSServer.LoginCommand>())
+    .UsePackageEncoder<CommandEncoder>()
+    .UseSessionFactory<KestrelServer.SSServer.TestSessionFactory>()
+    .UseKestrelChannelCreatorFactory()
+    .Build();
+
+await host.RunAsync();
 
 //
 var services = new ServiceCollection();

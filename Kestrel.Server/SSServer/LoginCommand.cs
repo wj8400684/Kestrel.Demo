@@ -13,6 +13,7 @@ public sealed class LoginCommand : IAsyncCommand<TestSession,CommandMessage>
         
         await session.SendMessageAsync(new CommandMessage
         {
+            Identifier = package.Identifier,
             Key = CommandType.LoginReply,
             Content = new LoginMessageReply
             {
