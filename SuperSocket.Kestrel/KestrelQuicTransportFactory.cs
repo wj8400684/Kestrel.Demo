@@ -1,11 +1,13 @@
+using System.Net.Security;
 using System.Net.Sockets;
 using Microsoft.AspNetCore.Connections;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Logging;
 using SuperSocket.Channel;
 
 namespace SuperSocket.Kestrel;
 
-public sealed class KestrelQuicTransportFactory(
+internal sealed class KestrelQuicTransportFactory(
     ListenOptions options,
     IMultiplexedConnectionListenerFactory socketTransportFactory,
     Func<ConnectionContext, ValueTask<IChannel>> channelFactory,
@@ -28,9 +30,20 @@ public sealed class KestrelQuicTransportFactory(
     {
         try
         {
+            var collection = new FeatureCollection();
+
+            collection.Set(new TlsConnectionCallbackOptions
+            {
+                ApplicationProtocols = new List<SslApplicationProtocol>()
+                {
+                    SslApplicationProtocol.Http3,
+                }
+            });
+
+
             var listenEndpoint = Options.GetListenEndPoint();
 
-            var result = socketTransportFactory.BindAsync(listenEndpoint);
+            var result = socketTransportFactory.BindAsync(listenEndpoint, collection);
 
             _connectionListener = result.IsCompleted ? result.Result : result.GetAwaiter().GetResult();
 

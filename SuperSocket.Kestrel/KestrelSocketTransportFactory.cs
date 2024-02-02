@@ -5,7 +5,7 @@ using SuperSocket.Channel;
 
 namespace SuperSocket.Kestrel;
 
-public sealed class KestrelSocketTransportFactory(
+internal sealed class KestrelSocketTransportFactory(
     ListenOptions options,
     IConnectionListenerFactory socketTransportFactory,
     Func<ConnectionContext, ValueTask<IChannel>> channelFactory,
