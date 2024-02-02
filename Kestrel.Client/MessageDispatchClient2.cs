@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Quic;
 using Bedrock.Framework.Protocols;
 using Google.Protobuf;
 using Kestrel.Core;
