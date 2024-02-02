@@ -7,7 +7,6 @@
         please contribute back.
     -->
     <Application>
-        <Assembly Name="KestrelCore" Dynamic="Required All"/>
-        <Assembly Name="SuperSocket.IOCPTcpEasyClient" Dynamic="Required All"/>
+        <Assembly Name="Kestrel.Core" Dynamic="Required All"/>
     </Application>
 </Directives>
