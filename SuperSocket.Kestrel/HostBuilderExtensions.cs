@@ -8,7 +8,7 @@ namespace SuperSocket.Kestrel;
 
 public static class HostBuilderExtensions
 {
-    public static ISuperSocketHostBuilder UseTcpChannelCreatorFactory(this ISuperSocketHostBuilder hostBuilder)
+    public static ISuperSocketHostBuilder UseSocketChannelCreatorFactory(this ISuperSocketHostBuilder hostBuilder)
     {
         hostBuilder.ConfigureServices((context, server) =>
         {

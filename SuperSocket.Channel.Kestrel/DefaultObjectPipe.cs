@@ -5,7 +5,7 @@ namespace SuperSocket.Channel.Kestrel;
 
 public class DefaultObjectPipe<T> : IObjectPipe<T>, IValueTaskSource<T>, IDisposable
 {
-    class BufferSegment
+    private class BufferSegment
     {
         public T[] Array { get; private set; }
 
@@ -31,14 +31,14 @@ public class DefaultObjectPipe<T> : IObjectPipe<T>, IValueTaskSource<T>, IDispos
         }
     }
 
-    private const int _segmentSize = 5;
+    private const int SegmentSize = 5;
     private BufferSegment _first;
     private BufferSegment _current;
-    private object _syncRoot = new object();
-    private static readonly ArrayPool<T> _pool = ArrayPool<T>.Shared;
+    private readonly object _syncRoot = new object();
+    private static readonly ArrayPool<T> Pool = ArrayPool<T>.Shared;
     private ManualResetValueTaskSourceCore<T> _taskSourceCore;
-    private bool _waiting = false;
-    private bool _lastReadIsWait = false;
+    private bool _waiting;
+    private bool _lastReadIsWait;
     private int _length;
 
     public DefaultObjectPipe()
@@ -49,7 +49,7 @@ public class DefaultObjectPipe<T> : IObjectPipe<T>, IValueTaskSource<T>, IDispos
 
     BufferSegment CreateSegment()
     {
-        return new BufferSegment(_pool.Rent(_segmentSize));
+        return new BufferSegment(Pool.Rent(SegmentSize));
     }
 
     private void SetBufferSegment(BufferSegment segment)
@@ -116,7 +116,7 @@ public class DefaultObjectPipe<T> : IObjectPipe<T>, IValueTaskSource<T>, IDispos
                 value = first.Array[first.Offset];
                 first.Array[first.Offset] = default;
                 _first = first.Next;
-                _pool.Return(first.Array);
+                Pool.Return(first.Array);
                 return true;
             }
         }
@@ -129,7 +129,7 @@ public class DefaultObjectPipe<T> : IObjectPipe<T>, IValueTaskSource<T>, IDispos
     {
         lock (_syncRoot)
         {
-            if (TryRead(out T value))
+            if (TryRead(out var value))
             {
                 if (_lastReadIsWait)
                 {
@@ -178,32 +178,32 @@ public class DefaultObjectPipe<T> : IObjectPipe<T>, IValueTaskSource<T>, IDispos
 
     #region IDisposable Support
 
-    private bool disposedValue = false; // To detect redundant calls
+    private bool _disposedValue = false; // To detect redundant calls
 
     protected virtual void Dispose(bool disposing)
     {
-        if (!disposedValue)
+        if (_disposedValue)
+            return;
+        
+        if (disposing)
         {
-            if (disposing)
+            lock (_syncRoot)
             {
-                lock (_syncRoot)
+                // return all segments into the pool
+                var segment = _first;
+
+                while (segment != null)
                 {
-                    // return all segments into the pool
-                    var segment = _first;
-
-                    while (segment != null)
-                    {
-                        _pool.Return(segment.Array);
-                        segment = segment.Next;
-                    }
-
-                    _first = null;
-                    _current = null;
+                    Pool.Return(segment.Array);
+                    segment = segment.Next;
                 }
-            }
 
-            disposedValue = true;
+                _first = null;
+                _current = null;
+            }
         }
+
+        _disposedValue = true;
     }
 
     void IDisposable.Dispose()
