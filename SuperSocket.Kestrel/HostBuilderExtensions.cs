@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Connections;
 using Microsoft.AspNetCore.Server.Kestrel.Transport.Quic;
 using Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets;
 using Microsoft.Extensions.DependencyInjection;
+using SuperSocket.Kestrel.NamedPipe;
 
 namespace SuperSocket.Kestrel;
 
@@ -27,5 +28,10 @@ public static class HostBuilderExtensions
         });
 
         return hostBuilder.UseChannelCreatorFactory<KestrelQuicChannelCreatorFactory>();
+    }
+    
+    public static ISuperSocketHostBuilder UseNamedPipeChannelCreatorFactory(this ISuperSocketHostBuilder hostBuilder)
+    {
+        return hostBuilder.UseChannelCreatorFactory<NamedPipeChannelCreatorFactory>();
     }
 }
