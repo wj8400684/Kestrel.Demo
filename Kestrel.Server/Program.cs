@@ -22,7 +22,7 @@ var host = SuperSocketHostBuilder.Create<CommandMessage, CommandFilterPipeLine>(
     .UseCommand(options => options.AddCommand<KestrelServer.SSServer.LoginCommand>())
     .UsePackageEncoder<CommandEncoder>()
     .UseSessionFactory<KestrelServer.SSServer.TestSessionFactory>()
-    .UseKestrelChannelCreatorFactory()
+    .UseQuicChannelCreatorFactory()
     .Build();
 
 await host.RunAsync();
@@ -35,18 +35,18 @@ services.AddLogging(builder =>
     builder.AddConsole();
 });
 
-
-
 services.TryAddEnumerable(ServiceDescriptor.Singleton<IAsyncCommand, LoginCommand>());
 
 var serviceProvider = services.BuildServiceProvider();
 //
 // var endpoint = new IPEndPoint(IPAddress.Any, 12345); // 监听IP地址和端口号
-// var quicOptions = new QuicTransportOptions(); // 创建QUIC传输选项
+ var quicOptions = new QuicTransportOptions(); // 创建QUIC传输选项
 //
+//
+// new QuicTransportFactory()
 //
 // var quicListener = new QuicTransportFactory(quicOptions).Create(endpoint); // 创建QUIC监听器
-//
+// //
 // var kestrelOptions = new KestrelServerOptions(); // 创建Kestrel选项
 // kestrelOptions.Listen(quicListener,
 //     builder => builder.UseConnectionHandler<QuicServerHandler>()); // 将QUIC监听器添加到Kestrel中

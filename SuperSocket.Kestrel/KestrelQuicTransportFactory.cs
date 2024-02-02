@@ -5,25 +5,25 @@ using SuperSocket.Channel;
 
 namespace SuperSocket.Kestrel;
 
-public sealed class KestrelTransportFactory(
+public sealed class KestrelQuicTransportFactory(
     ListenOptions options,
-    IConnectionListenerFactory socketTransportFactory,
+    IMultiplexedConnectionListenerFactory socketTransportFactory,
     Func<ConnectionContext, ValueTask<IChannel>> channelFactory,
     ILogger logger)
     : IChannelCreator
 {
-    private IConnectionListener _connectionListener;
+    private IMultiplexedConnectionListener _connectionListener;
     private CancellationTokenSource _cancellationTokenSource;
     private TaskCompletionSource<bool> _stopTaskCompletionSource;
 
     public ListenOptions Options { get; } = options;
 
     public event NewClientAcceptHandler NewClientAccepted;
-    
+
     public bool IsRunning { get; private set; }
 
     Task<IChannel> IChannelCreator.CreateChannel(object connection) => throw new NotImplementedException();
-    
+
     bool IChannelCreator.Start()
     {
         try
@@ -33,7 +33,7 @@ public sealed class KestrelTransportFactory(
             var result = socketTransportFactory.BindAsync(listenEndpoint);
 
             _connectionListener = result.IsCompleted ? result.Result : result.GetAwaiter().GetResult();
-            
+
             IsRunning = true;
 
             _cancellationTokenSource = new CancellationTokenSource();
@@ -47,7 +47,7 @@ public sealed class KestrelTransportFactory(
             return false;
         }
     }
-    
+
     Task IChannelCreator.StopAsync()
     {
         var listenSocket = _connectionListener;
@@ -63,14 +63,15 @@ public sealed class KestrelTransportFactory(
         return _stopTaskCompletionSource.Task;
     }
 
-    private async Task KeepAcceptAsync(IConnectionListener connectionListener)
+    private async Task KeepAcceptAsync(IMultiplexedConnectionListener connectionListener)
     {
         while (!_cancellationTokenSource.IsCancellationRequested)
         {
             try
             {
                 var client = await connectionListener.AcceptAsync().ConfigureAwait(false);
-                OnNewClientAccept(client);
+                var s = await client.AcceptAsync();
+                OnNewClientAccept(s);
             }
             catch (Exception e)
             {
@@ -82,7 +83,8 @@ public sealed class KestrelTransportFactory(
                     var errorCode = se.ErrorCode;
 
                     //The listen socket was closed
-                    if (errorCode == 125 || errorCode == 89 || errorCode == 995 || errorCode == 10004 || errorCode == 10038)
+                    if (errorCode == 125 || errorCode == 89 || errorCode == 995 || errorCode == 10004 ||
+                        errorCode == 10038)
                     {
                         break;
                     }
@@ -121,6 +123,4 @@ public sealed class KestrelTransportFactory(
     {
         return Options?.ToString();
     }
-
-    
 }

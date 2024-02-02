@@ -6,7 +6,7 @@ using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Kestrel;
 
-internal sealed class KestrelChannelCreatorFactory(IConnectionListenerFactory listenerFactory) : IChannelCreatorFactory
+internal sealed class KestrelSocketChannelCreatorFactory(IConnectionListenerFactory listenerFactory) : IChannelCreatorFactory
 {
     IChannelCreator IChannelCreatorFactory.CreateChannelCreator<TPackageInfo>(ListenOptions options,
         ChannelOptions channelOptions, ILoggerFactory loggerFactory, object pipelineFilterFactory)
@@ -15,10 +15,12 @@ internal sealed class KestrelChannelCreatorFactory(IConnectionListenerFactory li
 
         ArgumentNullException.ThrowIfNull(filterFactory);
 
-        var channelFactoryLogger = loggerFactory.CreateLogger(nameof(KestrelTransportFactory));
+        var channelFactoryLogger = loggerFactory.CreateLogger(nameof(KestrelSocketTransportFactory));
         channelOptions.Logger = loggerFactory.CreateLogger(nameof(IChannel));
 
-        var creator = new KestrelTransportFactory(options: options, socketTransportFactory: listenerFactory,
+        var creator = new KestrelSocketTransportFactory(
+            options: options, 
+            socketTransportFactory: listenerFactory,
             logger: channelFactoryLogger, channelFactory:
             connectionContext =>
             {
