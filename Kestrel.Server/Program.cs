@@ -22,7 +22,7 @@ var host = SuperSocketHostBuilder.Create<CommandMessage, CommandFilterPipeLine>(
     .UseCommand(options => options.AddCommand<KestrelServer.SSServer.LoginCommand>())
     .UsePackageEncoder<CommandEncoder>()
     .UseSessionFactory<KestrelServer.SSServer.TestSessionFactory>()
-    .UseNamedPipeChannelCreatorFactory()
+    .UseQuicChannelCreatorFactory()
     .Build();
 
 await host.RunAsync();
