@@ -12,7 +12,7 @@ internal sealed class KestrelServerOptionsSetup : IConfigureOptions<KestrelServe
     {
         options.ListenAnyIP(8081, listen =>
         {
-            listen.UseConnectionHandler<KestrelChannelConnectionHandler>();
+            listen.UseConnectionHandler<ChannelConnectionHandler>();
         });
         
         // if (File.Exists(SocketPath))

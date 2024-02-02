@@ -9,9 +9,9 @@ public static class CommandExtensions
     public static IServiceCollection AddKestrelCommands<
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TCommand>(
         this IServiceCollection serviceCollection)
-        where TCommand : class, IKestrelAsyncCommand
+        where TCommand : class, IAsyncCommand
     {
-        serviceCollection.TryAddEnumerable(ServiceDescriptor.Singleton<IKestrelAsyncCommand, TCommand>());
+        serviceCollection.TryAddEnumerable(ServiceDescriptor.Singleton<IAsyncCommand, TCommand>());
 
         return serviceCollection;
     }

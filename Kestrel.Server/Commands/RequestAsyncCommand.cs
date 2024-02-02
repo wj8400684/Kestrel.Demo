@@ -4,11 +4,11 @@ using SuperSocket.Channel;
 
 namespace KestrelServer.Commands;
 
-public abstract class KestrelRequestAsyncCommand : IKestrelAsyncCommand
+public abstract class RequestAsyncCommand : IAsyncCommand
 {
     public abstract CommandType CommandType { get; }
 
-    ValueTask IKestrelAsyncCommand.
+    ValueTask IAsyncCommand.
         ExecuteAsync(IChannel session, CommandMessage package) =>
         SchedulerAsync(session, package, CancellationToken.None);
 
@@ -73,7 +73,7 @@ public abstract class KestrelRequestAsyncCommand : IKestrelAsyncCommand
     }
 }
 
-public abstract class KestrelRequestAsyncCommand<TRequestPackage> : IKestrelAsyncCommand
+public abstract class RequestAsyncCommand<TRequestPackage> : IAsyncCommand
     where TRequestPackage : IMessage<TRequestPackage>
 {
     public abstract CommandType CommandType { get; }
@@ -81,7 +81,7 @@ public abstract class KestrelRequestAsyncCommand<TRequestPackage> : IKestrelAsyn
     private readonly MessageParser<TRequestPackage> _requestParser =
         new(() => Activator.CreateInstance<TRequestPackage>()!);
 
-    ValueTask IKestrelAsyncCommand.
+    ValueTask IAsyncCommand.
         ExecuteAsync(IChannel session, CommandMessage package) =>
         SchedulerAsync(session, package, CancellationToken.None);
 

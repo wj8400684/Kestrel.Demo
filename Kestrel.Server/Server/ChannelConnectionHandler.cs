@@ -6,13 +6,13 @@ using SuperSocket.Channel.Kestrel;
 
 namespace KestrelServer;
 
-public sealed class KestrelChannelConnectionHandler(
-    ILogger<KestrelChannelConnectionHandler> logger,
+public sealed class ChannelConnectionHandler(
+    ILogger<ChannelConnectionHandler> logger,
     IServiceProvider appServices) : ConnectionHandler
 {
-    private readonly ApplicationDelegate<KestrelCommandContext> _application =
-        new ApplicationBuilder<KestrelCommandContext>(appServices)
-            .Use<KestrelCommandMiddleware>()
+    private readonly ApplicationDelegate<CommandContext> _application =
+        new ApplicationBuilder<CommandContext>(appServices)
+            .Use<CommandMiddleware>()
             .Build();
 
     public override async Task OnConnectedAsync(ConnectionContext connection)
@@ -28,7 +28,7 @@ public sealed class KestrelChannelConnectionHandler(
         {
             await foreach (var message in channel.RunAsync())
             {
-                await _application(new KestrelCommandContext
+                await _application(new CommandContext
                 {
                     Channel = channel,
                     Message = message,

@@ -3,7 +3,7 @@ using SuperSocket.Channel;
 
 namespace KestrelServer.Commands;
 
-public interface IKestrelAsyncCommand
+public interface IAsyncCommand
 {
     CommandType CommandType { get; }
 

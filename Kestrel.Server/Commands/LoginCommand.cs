@@ -4,7 +4,7 @@ using SuperSocket.Channel;
 
 namespace KestrelServer.Commands;
 
-public class KestrelLoginCommand : KestrelRequestAsyncCommand<LoginMessageRequest>
+public class LoginCommand : RequestAsyncCommand<LoginMessageRequest>
 {
     private readonly CommandEncoder _commandEncoder = new();
     

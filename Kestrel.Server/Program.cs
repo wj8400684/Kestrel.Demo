@@ -5,7 +5,7 @@ using KestrelServer.Options;
 var builder = WebApplication.CreateSlimBuilder(args);
 
 builder.Services.AddLogging();
-builder.Services.AddKestrelCommands<KestrelLoginCommand>();
+builder.Services.AddKestrelCommands<LoginCommand>();
 builder.Services.ConfigureOptions<KestrelServerOptionsSetup>();
 
 var app = builder.Build();

@@ -3,7 +3,7 @@ using SuperSocket.Channel;
 
 namespace KestrelServer;
 
-public readonly struct KestrelCommandContext
+public readonly struct CommandContext
 {
     public required IChannel Channel { get; init; }
 
