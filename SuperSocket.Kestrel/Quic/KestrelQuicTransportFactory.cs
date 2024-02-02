@@ -81,9 +81,17 @@ internal sealed class KestrelQuicTransportFactory(
         {
             try
             {
-                var client = await connectionListener.AcceptAsync().ConfigureAwait(false);
-                var s = await client.AcceptAsync();
-                OnNewClientAccept(s);
+                var multiplexedConnectionContext = await connectionListener.AcceptAsync().ConfigureAwait(false);
+
+                if (multiplexedConnectionContext == null)
+                {
+                    logger.LogError($"Listener[{this.ToString()}] failed to do AcceptAsync");
+                    continue;
+                }
+                
+                var connectionContext = await multiplexedConnectionContext.AcceptAsync().ConfigureAwait(false);
+                
+                OnNewClientAccept(connectionContext);
             }
             catch (Exception e)
             {

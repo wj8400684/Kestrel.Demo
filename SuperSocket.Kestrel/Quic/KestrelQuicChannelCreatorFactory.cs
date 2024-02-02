@@ -6,10 +6,14 @@ using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Kestrel;
 
-internal sealed class KestrelSocketChannelCreatorFactory(IConnectionListenerFactory listenerFactory) : IChannelCreatorFactory
+internal sealed class KestrelQuicChannelCreatorFactory(IMultiplexedConnectionListenerFactory listenerFactory)
+    : IChannelCreatorFactory
 {
-    IChannelCreator IChannelCreatorFactory.CreateChannelCreator<TPackageInfo>(ListenOptions options,
-        ChannelOptions channelOptions, ILoggerFactory loggerFactory, object pipelineFilterFactory)
+    IChannelCreator IChannelCreatorFactory.CreateChannelCreator<TPackageInfo>(
+        ListenOptions options,
+        ChannelOptions channelOptions, 
+        ILoggerFactory loggerFactory, 
+        object pipelineFilterFactory)
     {
         var filterFactory = pipelineFilterFactory as IPipelineFilterFactory<TPackageInfo>;
 
@@ -18,11 +22,11 @@ internal sealed class KestrelSocketChannelCreatorFactory(IConnectionListenerFact
         var channelFactoryLogger = loggerFactory.CreateLogger(nameof(KestrelSocketTransportFactory));
         channelOptions.Logger = loggerFactory.CreateLogger(nameof(IChannel));
 
-        var creator = new KestrelSocketTransportFactory(
-            options: options, 
+        var creator = new KestrelQuicTransportFactory(
+            options: options,
             socketTransportFactory: listenerFactory,
-            logger: channelFactoryLogger, channelFactory:
-            connectionContext =>
+            logger: channelFactoryLogger,
+            channelFactory: connectionContext =>
             {
                 var filter = filterFactory.Create(connectionContext);
 

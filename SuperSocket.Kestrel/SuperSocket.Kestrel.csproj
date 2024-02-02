@@ -16,4 +16,8 @@
       <PackageReference Include="SuperSocket.Primitives" Version="2.0.0-beta.19.424" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="NamedPipe\" />
+    </ItemGroup>
+
 </Project>
