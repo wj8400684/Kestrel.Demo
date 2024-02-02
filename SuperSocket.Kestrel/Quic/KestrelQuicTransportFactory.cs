@@ -37,7 +37,8 @@ internal sealed class KestrelQuicTransportFactory(
                 ApplicationProtocols =
                 [
                     SslApplicationProtocol.Http3
-                ]
+                ],
+                OnConnection = OnConnection
             });
 
             var listenEndpoint = Options.GetListenEndPoint();
@@ -58,6 +59,13 @@ internal sealed class KestrelQuicTransportFactory(
             logger.LogError(e, $"The listener[{this.ToString()}] failed to start.");
             return false;
         }
+    }
+
+    private ValueTask<SslServerAuthenticationOptions> OnConnection(TlsConnectionCallbackContext context, CancellationToken cancellationToken)
+    {
+        return new ValueTask<SslServerAuthenticationOptions>(new SslServerAuthenticationOptions
+        {
+        });
     }
 
     Task IChannelCreator.StopAsync()
