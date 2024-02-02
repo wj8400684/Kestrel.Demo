@@ -1,5 +1,6 @@
 using System.IO.Pipelines;
 using System.IO.Pipes;
+using System.Net;
 using Microsoft.AspNetCore.Connections;
 using Microsoft.AspNetCore.Http.Features;
 
@@ -9,10 +10,12 @@ internal sealed class NamedPipeConnectionContext : ConnectionContext, IDuplexPip
 {
     private readonly PipeStream _stream;
 
-    public NamedPipeConnectionContext(PipeStream stream)
+    public NamedPipeConnectionContext(PipeStream stream, EndPoint localEndPoint)
     {
         _stream = stream;
         Transport = this;
+        LocalEndPoint = localEndPoint;
+        RemoteEndPoint = localEndPoint;
         ConnectionId = Guid.NewGuid().ToString();
 
         Input = PipeReader.Create(stream);

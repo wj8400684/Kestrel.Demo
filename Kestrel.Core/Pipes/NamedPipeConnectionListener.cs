@@ -37,7 +37,8 @@ namespace Bedrock.Framework
                     break;
                 }
 
-                var stream = new NamedPipeServerStream(_endpoint.PipeName, PipeDirection.InOut, NamedPipeServerStream.MaxAllowedServerInstances, PipeTransmissionMode.Byte, _endpoint.PipeOptions);
+                var stream = new NamedPipeServerStream(_endpoint.PipeName, PipeDirection.InOut,
+                    NamedPipeServerStream.MaxAllowedServerInstances, PipeTransmissionMode.Byte, _endpoint.PipeOptions);
 
                 try
                 {
@@ -54,7 +55,7 @@ namespace Bedrock.Framework
                     break;
                 }
 
-                _acceptedQueue.Writer.TryWrite(new NamedPipeConnectionContext(stream));
+                _acceptedQueue.Writer.TryWrite(new NamedPipeConnectionContext(stream, _endpoint));
             }
 
             _acceptedQueue.Writer.TryComplete();
@@ -69,6 +70,7 @@ namespace Bedrock.Framework
                     return connection;
                 }
             }
+
             return null;
         }
 

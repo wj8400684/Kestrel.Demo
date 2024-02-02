@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Quic;
+using Bedrock.Framework;
 using Microsoft.AspNetCore.Connections;
 using Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,7 +9,8 @@ namespace Kestrel.Core;
 
 public static class SocketConnectionFactoryExtensions
 {
-    private const string SocketConnectionFactoryTypeName = "Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketConnectionFactory";
+    private const string SocketConnectionFactoryTypeName =
+        "Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketConnectionFactory";
 
     /// <summary>
     /// 查找SocketConnectionFactory的类型
@@ -21,7 +23,7 @@ public static class SocketConnectionFactoryExtensions
         var connectionFactoryType = assembly.GetType(SocketConnectionFactoryTypeName);
         return connectionFactoryType ?? throw new NotSupportedException($"找不到类型{SocketConnectionFactoryTypeName}");
     }
-    
+
     /// <summary>
     /// 注册SocketConnectionFactory为IConnectionFactory
     /// </summary>
@@ -35,5 +37,10 @@ public static class SocketConnectionFactoryExtensions
         var factoryType = FindSocketConnectionFactory();
 
         return services.AddTransient(typeof(IConnectionFactory), factoryType);
+    }
+
+    public static IServiceCollection AddNamedPipeConnectionFactory(this IServiceCollection services)
+    {
+        return services.AddTransient<IConnectionFactory, NamedPipeConnectionFactory>();
     }
 }

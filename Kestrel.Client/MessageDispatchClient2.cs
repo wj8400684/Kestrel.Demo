@@ -30,7 +30,7 @@ public class MessageDispatchClient2
     {
         var service = new ServiceCollection();
         service.AddLogging();
-        service.AddSocketConnectionFactory();
+        service.AddNamedPipeConnectionFactory();
 
         _provider = service.BuildServiceProvider();
         _connectionFactory = _provider.GetRequiredService<IConnectionFactory>();
@@ -38,68 +38,70 @@ public class MessageDispatchClient2
 
     public async ValueTask<ValueStartResult> StartAsync()
     {
-// This represents the minimal configuration necessary to open a connection.
-#pragma warning disable CA2252
-        var clientConnectionOptions = new QuicClientConnectionOptions
-        {
-            // End point of the server to connect to.
-            RemoteEndPoint = new IPEndPoint(IPAddress.Loopback, 8081),
-
-            DefaultCloseErrorCode = 0,
-            DefaultStreamErrorCode = 0,
-            ClientAuthenticationOptions = new SslClientAuthenticationOptions
-            {
-                ApplicationProtocols = new List<SslApplicationProtocol> { SslApplicationProtocol.Http3 },
-                RemoteCertificateValidationCallback = (sender, certificate, chain, errors) => { return true; }
-            }
-        };
-
-        var connection = await QuicConnection.ConnectAsync(clientConnectionOptions);
-
-        var outgoingStream = await connection.OpenOutboundStreamAsync(QuicStreamType.Bidirectional);
-
-        //var inboundStream = await connection.AcceptInboundStreamAsync();
-
-        var connectionContext = new QuicStreamConnectionContext(outgoingStream, outgoingStream,
-            connection.LocalEndPoint,
-            connection.RemoteEndPoint);
-
-        _channel =
-            new KestrelPipeChannel<CommandMessage>(connectionContext, new CommandFilterPipeLine(),
-                new ChannelOptions());
-
-        _channel.Closed += OnClosed;
-
-        StartReceive();
-
-        return ValueStartResult.SetResult(true);
-
-#pragma warning restore CA2252
+//         
+// // This represents the minimal configuration necessary to open a connection.
+// #pragma warning disable CA2252
+//         var clientConnectionOptions = new QuicClientConnectionOptions
+//         {
+//             // End point of the server to connect to.
+//             RemoteEndPoint = new IPEndPoint(IPAddress.Loopback, 8081),
+//
+//             DefaultCloseErrorCode = 0,
+//             DefaultStreamErrorCode = 0,
+//             ClientAuthenticationOptions = new SslClientAuthenticationOptions
+//             {
+//                 ApplicationProtocols = new List<SslApplicationProtocol> { SslApplicationProtocol.Http3 },
+//                 RemoteCertificateValidationCallback = (sender, certificate, chain, errors) => { return true; }
+//             }
+//         };
+//
+//         var connection = await QuicConnection.ConnectAsync(clientConnectionOptions);
+//
+//         var outgoingStream = await connection.OpenOutboundStreamAsync(QuicStreamType.Bidirectional);
+//
+//         //var inboundStream = await connection.AcceptInboundStreamAsync();
+//
+//         var connectionContext = new QuicStreamConnectionContext(outgoingStream, outgoingStream,
+//             connection.LocalEndPoint,
+//             connection.RemoteEndPoint);
+//
+//         _channel =
+//             new KestrelPipeChannel<CommandMessage>(connectionContext, new CommandFilterPipeLine(),
+//                 new ChannelOptions());
+//
+//         _channel.Closed += OnClosed;
+//
+//         StartReceive();
+//
+//         return ValueStartResult.SetResult(true);
+//
+// #pragma warning restore CA2252
 
 // Initialize, configure and connect to the server.
 
-        //
-        //
-        //     ConnectionContext connectionContext;
-        //
-        //     try
-        //     {
-        //         connectionContext = await _connectionFactory.ConnectAsync(new IPEndPoint(IPAddress.Loopback, 8081));
-        //     }
-        //     catch (Exception e)
-        //     {
-        //         return ValueStartResult.SetError(e);
-        //     }
-        //
-        //     _channel =
-        //         new KestrelPipeChannel<CommandMessage>(connectionContext, new CommandFilterPipeLine(),
-        //             new ChannelOptions());
-        //
-        //     _channel.Closed += OnClosed;
-        //
-        //     StartReceive();
-        //
-        //     return ValueStartResult.SetResult(true);
+        
+        
+        ConnectionContext connectionContext;
+        
+        try
+        {
+            connectionContext = await _connectionFactory.ConnectAsync(new Bedrock.Framework.NamedPipeEndPoint("ss"));
+            //connectionContext = await _connectionFactory.ConnectAsync(new IPEndPoint(IPAddress.Loopback, 8081));
+        }
+        catch (Exception e)
+        {
+            return ValueStartResult.SetError(e);
+        }
+        
+        _channel =
+            new KestrelPipeChannel<CommandMessage>(connectionContext, new CommandFilterPipeLine(),
+                new ChannelOptions());
+        
+        _channel.Closed += OnClosed;
+        
+        StartReceive();
+        
+        return ValueStartResult.SetResult(true);
     }
 
     private async void StartReceive()

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO.Pipelines;
 using System.IO.Pipes;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Connections;
 using Microsoft.AspNetCore.Http.Features;
@@ -13,14 +14,17 @@ namespace Bedrock.Framework
     {
         private readonly PipeStream _stream;
 
-        public NamedPipeConnectionContext(PipeStream stream)
+        public NamedPipeConnectionContext(PipeStream stream, EndPoint localEndPoint)
         {
             _stream = stream;
             Transport = this;
+            LocalEndPoint = localEndPoint;
+            RemoteEndPoint = localEndPoint;
             ConnectionId = Guid.NewGuid().ToString();
 
             Input = PipeReader.Create(stream);
             Output = PipeWriter.Create(stream);
+            
         }
 
         public PipeReader Input { get; }

@@ -9,7 +9,8 @@ namespace Bedrock.Framework
 {
     public class NamedPipeConnectionFactory : IConnectionFactory
     {
-        public async ValueTask<ConnectionContext> ConnectAsync(EndPoint endpoint, CancellationToken cancellationToken = default)
+        public async ValueTask<ConnectionContext> ConnectAsync(EndPoint endpoint,
+            CancellationToken cancellationToken = default)
         {
             if (!(endpoint is NamedPipeEndPoint np))
             {
@@ -19,7 +20,7 @@ namespace Bedrock.Framework
             var pipeStream = new NamedPipeClientStream(np.ServerName, np.PipeName, PipeDirection.InOut, np.PipeOptions);
             await pipeStream.ConnectAsync(cancellationToken).ConfigureAwait(false);
 
-            return new NamedPipeConnectionContext(pipeStream);
+            return new NamedPipeConnectionContext(pipeStream, endpoint);
         }
     }
 }

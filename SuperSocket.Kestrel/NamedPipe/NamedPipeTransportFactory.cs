@@ -67,7 +67,7 @@ internal sealed class NamedPipeTransportFactory(
 
                 await stream.WaitForConnectionAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
 
-                OnNewClientAccept(stream);
+                OnNewClientAccept(stream, namedPipeEndPoint);
             }
             catch (Exception e)
             {
@@ -78,7 +78,7 @@ internal sealed class NamedPipeTransportFactory(
         _stopTaskCompletionSource.TrySetResult(true);
     }
 
-    private async void OnNewClientAccept(PipeStream stream)
+    private async void OnNewClientAccept(PipeStream stream, NamedPipeEndPoint endPoint)
     {
         var handler = NewClientAccepted;
 
@@ -89,7 +89,7 @@ internal sealed class NamedPipeTransportFactory(
 
         try
         {
-            channel = await channelFactory(new NamedPipeConnectionContext(stream));
+            channel = await channelFactory(new NamedPipeConnectionContext(stream, endPoint));
         }
         catch (Exception e)
         {

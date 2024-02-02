@@ -121,6 +121,4 @@ internal sealed class KestrelSocketTransportFactory(
     {
         return Options?.ToString();
     }
-
-    
 }
