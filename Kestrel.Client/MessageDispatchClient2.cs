@@ -45,23 +45,12 @@ public class MessageDispatchClient2
             // End point of the server to connect to.
             RemoteEndPoint = new IPEndPoint(IPAddress.Loopback, 8081),
 
-            // Used to abort stream if it's not properly closed by the user.
-            // See https://www.rfc-editor.org/rfc/rfc9000#section-20.2
-            DefaultStreamErrorCode = 0x0A, // Protocol-dependent error code.
-
-            // Used to close the connection if it's not done by the user.
-            // See https://www.rfc-editor.org/rfc/rfc9000#section-20.2
-            DefaultCloseErrorCode = 0x0B, // Protocol-dependent error code.
-
-            // Optionally set limits for inbound streams.
-            MaxInboundUnidirectionalStreams = 10,
-            MaxInboundBidirectionalStreams = 100,
-
-            // Same options as for client side SslStream.
+            DefaultCloseErrorCode = 0,
+            DefaultStreamErrorCode = 0,
             ClientAuthenticationOptions = new SslClientAuthenticationOptions
             {
-                // List of supported application protocols.
-                ApplicationProtocols = new List<SslApplicationProtocol>() { SslApplicationProtocol.Http3 }
+                ApplicationProtocols = new List<SslApplicationProtocol> { SslApplicationProtocol.Http3 },
+                RemoteCertificateValidationCallback = (sender, certificate, chain, errors) => { return true; }
             }
         };
 
@@ -69,9 +58,10 @@ public class MessageDispatchClient2
 
         var outgoingStream = await connection.OpenOutboundStreamAsync(QuicStreamType.Bidirectional);
 
-        var inboundStream = await connection.AcceptInboundStreamAsync();
+        //var inboundStream = await connection.AcceptInboundStreamAsync();
 
-        var connectionContext = new QuicStreamConnectionContext(outgoingStream, inboundStream, connection.LocalEndPoint,
+        var connectionContext = new QuicStreamConnectionContext(outgoingStream, outgoingStream,
+            connection.LocalEndPoint,
             connection.RemoteEndPoint);
 
         _channel =
@@ -110,105 +100,105 @@ public class MessageDispatchClient2
         //     StartReceive();
         //
         //     return ValueStartResult.SetResult(true);
+    }
+
+    private async void StartReceive()
+    {
+        _channel.Start();
+
+        try
+        {
+            await foreach (var message in _channel.RunAsync())
+            {
+                await TryDispatchAsync(message);
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
         }
 
-        private async void StartReceive()
+        Console.WriteLine("断开连接");
+    }
+
+    private void OnClosed(object sender, EventArgs e)
+    {
+        Console.WriteLine("断开连接");
+    }
+
+    private async ValueTask OnPackageHandler(EasyClient<CommandMessage> sender, CommandMessage package)
+    {
+        await TryDispatchAsync(package);
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="message"></param>
+    /// <returns></returns>
+    private ValueTask TryDispatchAsync(CommandMessage message)
+    {
+        _messageDispatcher.TryDispatch(message);
+
+        return ValueTask.CompletedTask;
+    }
+
+    /// <summary>
+    /// 获取响应封包
+    /// </summary>
+    /// <typeparam name="TReplyMessage"></typeparam>
+    /// <param name="message"></param>
+    /// <exception cref="TimeoutException"></exception>
+    /// <exception cref="TaskCanceledException"></exception>
+    /// <exception cref="Exception"></exception>
+    /// <returns></returns>
+    public ValueTask<ValueCommandResponse<TReplyMessage>> GetResponseAsync<TReplyMessage>(CommandMessage message)
+        where TReplyMessage : IMessage<TReplyMessage>
+    {
+        return GetResponseAsync<TReplyMessage>(message, CancellationToken.None);
+    }
+
+    /// <summary>
+    /// 获取响应封包
+    /// </summary>
+    /// <typeparam name="TReplyMessage"></typeparam>
+    /// <param name="message"></param>
+    /// <param name="cancellationToken"></param>
+    /// <exception cref="TimeoutException"></exception>
+    /// <exception cref="TaskCanceledException"></exception>
+    /// <exception cref="Exception"></exception>
+    /// <returns></returns>
+    public async ValueTask<ValueCommandResponse<TReplyMessage>> GetResponseAsync<TReplyMessage>(
+        CommandMessage message,
+        CancellationToken cancellationToken)
+        where TReplyMessage : IMessage<TReplyMessage>
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        message.Identifier = _messageIdentifierProvider.GetNextIdentifier();
+
+        using var messageAwaitable = _messageDispatcher.AddAwaitable<TReplyMessage>(message.Identifier);
+
+        try
         {
-            _channel.Start();
-
-            try
-            {
-                await foreach (var message in _channel.RunAsync())
-                {
-                    await TryDispatchAsync(message);
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
-
-            Console.WriteLine("断开连接");
+            await _channel.SendAsync(_encoder, message);
+        }
+        catch (Exception e)
+        {
+            messageAwaitable.Fail(e);
+            throw new Exception("发送封包抛出一个异常", e);
         }
 
-        private void OnClosed(object sender, EventArgs e)
+        try
         {
-            Console.WriteLine("断开连接");
+            return await messageAwaitable.WaitAsync(cancellationToken);
         }
-
-        private async ValueTask OnPackageHandler(EasyClient<CommandMessage> sender, CommandMessage package)
+        catch (Exception e)
         {
-            await TryDispatchAsync(package);
-        }
+            if (e is TimeoutException)
+                throw new TimeoutException($"等待封包调度超时命令：{message.Key}", e);
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="message"></param>
-        /// <returns></returns>
-        private ValueTask TryDispatchAsync(CommandMessage message)
-        {
-            _messageDispatcher.TryDispatch(message);
-
-            return ValueTask.CompletedTask;
-        }
-
-        /// <summary>
-        /// 获取响应封包
-        /// </summary>
-        /// <typeparam name="TReplyMessage"></typeparam>
-        /// <param name="message"></param>
-        /// <exception cref="TimeoutException"></exception>
-        /// <exception cref="TaskCanceledException"></exception>
-        /// <exception cref="Exception"></exception>
-        /// <returns></returns>
-        public ValueTask<ValueCommandResponse<TReplyMessage>> GetResponseAsync<TReplyMessage>(CommandMessage message)
-            where TReplyMessage : IMessage<TReplyMessage>
-        {
-            return GetResponseAsync<TReplyMessage>(message, CancellationToken.None);
-        }
-
-        /// <summary>
-        /// 获取响应封包
-        /// </summary>
-        /// <typeparam name="TReplyMessage"></typeparam>
-        /// <param name="message"></param>
-        /// <param name="cancellationToken"></param>
-        /// <exception cref="TimeoutException"></exception>
-        /// <exception cref="TaskCanceledException"></exception>
-        /// <exception cref="Exception"></exception>
-        /// <returns></returns>
-        public async ValueTask<ValueCommandResponse<TReplyMessage>> GetResponseAsync<TReplyMessage>(
-            CommandMessage message,
-            CancellationToken cancellationToken)
-            where TReplyMessage : IMessage<TReplyMessage>
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            message.Identifier = _messageIdentifierProvider.GetNextIdentifier();
-
-            using var messageAwaitable = _messageDispatcher.AddAwaitable<TReplyMessage>(message.Identifier);
-
-            try
-            {
-                await _channel.SendAsync(_encoder, message);
-            }
-            catch (Exception e)
-            {
-                messageAwaitable.Fail(e);
-                throw new Exception("发送封包抛出一个异常", e);
-            }
-
-            try
-            {
-                return await messageAwaitable.WaitAsync(cancellationToken);
-            }
-            catch (Exception e)
-            {
-                if (e is TimeoutException)
-                    throw new TimeoutException($"等待封包调度超时命令：{message.Key}", e);
-
-                throw new Exception("等待封包调度抛出一个异常", e);
-            }
+            throw new Exception("等待封包调度抛出一个异常", e);
         }
     }
+}
