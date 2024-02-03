@@ -1,4 +1,5 @@
 using KestrelCore;
+using Microsoft.Extensions.Logging;
 using SuperSocket.Channel;
 using SuperSocket.ProtoBase;
 using SuperSocket.Server;
