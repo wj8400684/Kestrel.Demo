@@ -10,7 +10,7 @@ public static class HostBuilderExtensions
 {
     public static ISuperSocketHostBuilder UseSocketChannelCreatorFactory(this ISuperSocketHostBuilder hostBuilder)
     {
-        hostBuilder.ConfigureServices((context, server) =>
+        hostBuilder.ConfigureServices((_, server) =>
         {
             server.AddOptions<SocketTransportOptions>();
             server.AddSingleton<IConnectionListenerFactory, SocketTransportFactory>();
